@@ -18,8 +18,13 @@ namespace LicenseServer.Controllers.v1
 		{
 			try
 			{
-				if (page == 0 || pageSize == 0)
-					return BadRequest(new Result.Fail());
+				var errorResult = new Result.Fail();
+				if (page == 0)
+					errorResult.Data.Add("Укажите нужный номер страницы. Отсчет страиц начинается с 1");
+				if (pageSize == 0)
+					errorResult.Data.Add("Укажите сколько элементов будет отображаться на странице");
+				if (errorResult.Data.Count > 0)
+					return BadRequest(errorResult);
 
 				var organizations = _context.Organizations
 					.Skip((page - 1) * pageSize)
@@ -35,7 +40,7 @@ namespace LicenseServer.Controllers.v1
 				};
 				return Ok(new Result.Success<PagedResult<Organization>> { Status = "Success", Data = currentPage });
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 
 		[HttpPost("create")] // 8. POST Метод добавления организации
@@ -43,6 +48,16 @@ namespace LicenseServer.Controllers.v1
 		{
 			try
 			{
+				var errorResult = new Result.Fail();
+				if (organization.Inn.Length == 0)
+					errorResult.Data.Add("Укажите корректный ИНН");
+				if (organization.Email.Length == 0)
+					errorResult.Data.Add("Укажите корректную эл. почту");
+				if (organization.Phone.Length == 0)
+					errorResult.Data.Add("Укажите корректный телефон");
+				if (errorResult.Data.Count > 0)
+					return BadRequest(errorResult);
+
 				Organization currentOrganization = new Organization()
 				{
 					Inn = organization.Inn,
@@ -55,7 +70,7 @@ namespace LicenseServer.Controllers.v1
 
 				return CreatedAtAction(nameof(GetOrganizations), new { id = currentOrganization.Id }, new Result.Success<Organization> { Status = "Success", Data = currentOrganization });
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 	}
 }

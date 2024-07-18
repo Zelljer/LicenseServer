@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
+using System.Security.Cryptography;
 using License = LicenseServer.Models.Database.License;
 
 namespace LicenseServer.Controllers
@@ -23,14 +24,14 @@ namespace LicenseServer.Controllers
 			try
 			{
 				if (orgId == 0)
-					return BadRequest(new Result.Fail());
+					return BadRequest(new Result.Fail() { Data = { "Укажите корректный Id лицензии" } });
 
 				var licenses = await _context.Licenses.Include(l => l.Organization).Include(l => l.Tarif)
 					.Where(l => l.Organization.Id == orgId && l.EndDate > DateTime.Now).ToListAsync();
 
 				return Ok(new Result.Success<IEnumerable<License>> { Status = "Success", Data = licenses }); 
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 
 		[HttpGet("licensesOrgProg")] // 4. GET Метод получения активных лицензий по id организации по конкретной программе
@@ -38,15 +39,20 @@ namespace LicenseServer.Controllers
 		{
 			try
 			{
-				if (orgId == 0 || programId==0)
-					return BadRequest(new Result.Fail());
+				var errorResult = new Result.Fail();
+				if (orgId == 0)
+					errorResult.Data.Add("Указан не корректный Id организации");
+				if (programId == 0)
+					errorResult.Data.Add("Укажите корректную программу");
+				if (errorResult.Data.Count > 0)
+					return BadRequest(errorResult);
 
 				var licenses = await _context.Licenses.Include(l => l.Organization).Include(l => l.Tarif)
 					.Where(l => l.Organization.Id == orgId && l.Tarif.Program == programId && l.EndDate > DateTime.Now).ToListAsync();
 
 				return Ok(new Result.Success<IEnumerable<License>> { Status = "Success", Data = licenses });
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 
 		[HttpPost("create")] // 6. POST Метод добавления лицензии для организации
@@ -57,8 +63,13 @@ namespace LicenseServer.Controllers
 				Organization neededOrganization = await _context.Organizations.FindAsync(licenseData.OrganizationId);
 				Tarif neededTarif = await _context.Tarifs.FindAsync(licenseData.TarifId);
 
-				if (neededTarif == null || neededOrganization == null)
-					return NotFound(new Result.Fail());
+				var errorResult = new Result.Fail();
+				if (neededOrganization == null)
+					errorResult.Data.Add("Указана не существующая организация или не корректный Id организации");
+				if (neededTarif == null)
+					errorResult.Data.Add("Указан не существующий тариф или не корректный Id тарифа");
+				if (errorResult.Data.Count > 0)
+					return BadRequest(errorResult);
 
 				License currentLicense = new License()
 				{
@@ -72,10 +83,10 @@ namespace LicenseServer.Controllers
 				_context.Licenses.Add(currentLicense);
 				await _context.SaveChangesAsync();
 
-				return CreatedAtAction(nameof(GetLicensesByOrg), new { id = currentLicense.Id }, new Result.Success<License> { Status = "Success", Data = currentLicense });
+				return CreatedAtAction(nameof(GetLicensesByOrg), new { id = currentLicense.Id }, new Result.Success<License> { Data = currentLicense });
 
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 
 		[HttpDelete("delete/{id}")] // 7. POST Метод удаления лицензии для организации
@@ -84,12 +95,12 @@ namespace LicenseServer.Controllers
 			var license = await _context.Licenses.FindAsync(id);
 
 			if (license == null)
-				return NotFound(new Result.Fail());
+				return BadRequest(new Result.Fail() { Data = { "Указана не существующая лицензия или не корректный Id лицензии" } });
 
 			_context.Licenses.Remove(license);
 			await _context.SaveChangesAsync();
 
-			return Ok(new Result.Success<Array> { Status = "Success", Data = null });
+			return Ok(new Result.Success<Array> { Data = null });
 		}
 	}
 }

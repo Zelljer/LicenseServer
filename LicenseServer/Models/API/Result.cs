@@ -5,7 +5,7 @@
 		public class Fail() 
 		{
 			public string Status { get; set; } = "Fail";
-			public string Data { get; set; } = "Ошибка";
+			public List<string> Data { get; set; } = new List<string>();
 		}
 		public class Success<T>() 
 		{

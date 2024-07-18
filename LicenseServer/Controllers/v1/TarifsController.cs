@@ -3,6 +3,7 @@ using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LicenseServer.Controllers.v1
 {
@@ -18,6 +19,14 @@ namespace LicenseServer.Controllers.v1
 		{
 			try
 			{
+				var errorResult = new Result.Fail();
+				if (!Enum.IsDefined(typeof(ProgramType),tarif.Program) || tarif.DaysCount == 0)
+					errorResult.Data.Add("Указана не существующая программа");
+				if (tarif.DaysCount <= 0)
+					errorResult.Data.Add("Количество дней не может быть меньше или равняться 0");
+				if (errorResult.Data.Count > 0)
+					return BadRequest(errorResult);
+
 				Tarif currentTarif = new Tarif()
 				{
 					Name = tarif.Name,
@@ -30,7 +39,7 @@ namespace LicenseServer.Controllers.v1
 
 				return CreatedAtAction(nameof(GetTarifs), new { id = currentTarif.Id }, new Result.Success<Tarif> { Status = "Success", Data = currentTarif });
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 
 		[HttpGet("tarifs")] // 1. GET Метод получения списка информации о тарифах, которые продает ГК ТриАр (вовзращать список)
@@ -41,7 +50,7 @@ namespace LicenseServer.Controllers.v1
 				var tariff = await _context.Tarifs.ToListAsync();
 				return Ok(new Result.Success<IEnumerable<Tarif>> { Status = "Success", Data = tariff });
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 
 		[HttpGet("tarifs/{id}")] // 2. GET Метод получения списка информации 1 тарифе, которую продает ГК ТриАр (возвращать 1 запись по id )
@@ -50,12 +59,12 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (id == 0)
-					return BadRequest(new Result.Fail());
+					return BadRequest(new Result.Fail() { Data = { "Укажите корректный Id тарифа" } });
 
 				var tariff = await _context.Tarifs.FindAsync(id);
 				return Ok(new Result.Success<Tarif>() { Status = "Success", Data = tariff }) ;
 			}
-			catch { return BadRequest(new Result.Fail()); }
+			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
 		}
 	}
 }
