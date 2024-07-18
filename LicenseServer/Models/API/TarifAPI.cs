@@ -11,5 +11,7 @@ namespace LicenseServer.Models.API
 		public ProgramType Program { get; set; }
 		[Required]
 		public long Price { get; set; }
+		[Required]
+		public int DaysCount { get; set; }
 	}
 }

@@ -6,14 +6,11 @@ namespace LicenseServer.Models.API
 	public class LicenseAPI
 	{
 		[Required]
-		public virtual OrganizationAPI Organization { get; set; }
+		public int OrganizationId { get; set; }
 		[Required]
-		public virtual TarifAPI Tarif { get; set; }
+		public int TarifId { get; set; }
 		[Required]
-		public DateTime DateCreated { get; set; }
-		[Required]
-		public DateTime StartDate { get; set; }
-		[Required]
-		public DateTime EndDate { get; set; }
+		public DateTime DateStart { get; set; }
+
 	}
 }
