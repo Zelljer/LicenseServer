@@ -6,7 +6,6 @@ namespace LicenseServer.Models.Database
     {
         [Required]
         public required string Inn { get; set; }
-		[Required]
 		public string Kpp { get; set; }
 		[Required]
 		public string Email { get; set; }

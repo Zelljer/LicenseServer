@@ -7,10 +7,7 @@ namespace LicenseServer.Database
     public class ApplicationContext : DbContext
 	{
 		public ApplicationContext(DbContextOptions<ApplicationContext> options)
-		: base(options)
-		{
-			Database.EnsureCreated();
-		}
+		: base(options) => Database.EnsureCreated();
 
 		public DbSet<Tarif> Tarifs { get; set; }
 		public DbSet<License> Licenses { get; set; }
