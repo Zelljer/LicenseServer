@@ -1,6 +1,7 @@
 ﻿using LicenseServer.Database;
 using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
+using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,6 @@ namespace LicenseServer.Controllers
 		[HttpGet("licensesOrg")] // 3. GET Метод получения активных лицензий по id организации 
 		public async Task<ActionResult<IEnumerable<LicenseAPI.LicenseResponse>>> GetLicensesByOrg(int orgId) 
 		{
-
 				if (orgId <= 0)
 					return BadRequest(new Result.Fail() { Data = { "Укажите корректный Id лицензии" } });
 
@@ -39,8 +39,7 @@ namespace LicenseServer.Controllers
 			if (!licenses.Any())
 					return Ok(new Result.Success<string> { Data = "В базе нет данных" });
 
-			return Ok(new Result.Success<IEnumerable<LicenseAPI.LicenseResponse>> { Data = licenses }); 
-			
+			return Ok(new Result.Success<IEnumerable<LicenseAPI.LicenseResponse>> { Data = licenses }); 	
 		}
 
 		[HttpGet("licensesOrgProg")] // 4. GET Метод получения активных лицензий по id организации по конкретной программе
@@ -49,14 +48,10 @@ namespace LicenseServer.Controllers
 			try
 			{
 				var errorResult = new Result.Fail();
-				if (orgId == 0)
-					errorResult.Data.Add("Указан не корректный Id организации");
-				else if (_context.Organizations.FindAsync(orgId).Result == null)
+				errorResult.Data.AddRange(Validator.IsValidData(orgId, "Указан не корректный Id организации"));
+				if (_context.Organizations.FindAsync(orgId).Result == null)
 					errorResult.Data.Add("Нет организации с таким Id");
-				if (programId < 0)
-					errorResult.Data.Add("Укажите корректную программу");
-				if (!Enum.IsDefined(typeof(ProgramType), programId))
-					errorResult.Data.Add("Указана не существующая программа");
+				errorResult.Data.AddRange(Validator.IsValidProgram(programId));
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
 
@@ -84,13 +79,16 @@ namespace LicenseServer.Controllers
 		{
 			try
 			{
-				var currentLicenseDateStart = new DateTime();
-
 				var errorIdResult = new Result.Fail();
-				if (licenseData.OrganizationId <= 0)
-					errorIdResult.Data.Add("Указана не корректный Id организации");
-				if (licenseData.TarifId <= 0)
-					errorIdResult.Data.Add("Указан не корректный Id тарифа");
+				errorIdResult.Data.AddRange(Validator.IsValidData(licenseData.OrganizationId, "Укажите Id организации"));
+				if (!_context.Organizations.Where(o => o.Id == licenseData.OrganizationId).Any())
+					errorIdResult.Data.Add("Нет организации с таким Id");
+
+				errorIdResult.Data.AddRange(Validator.IsValidData(licenseData.TarifId, "Указан не корректный Id тарифа"));
+				if (!_context.Tarifs.Where(t => t.Id == licenseData.TarifId).Any())
+					errorIdResult.Data.Add("Нет тарифа с таким Id");
+
+				var currentLicenseDateStart = new DateTime();
 				if (DateTime.TryParseExact(licenseData.DateStart, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
 					currentLicenseDateStart = daeteTime;
 				else
@@ -100,14 +98,6 @@ namespace LicenseServer.Controllers
 
 				Organization neededOrganization = await _context.Organizations.FindAsync(licenseData.OrganizationId);
 				Tarif neededTarif = await _context.Tarifs.FindAsync(licenseData.TarifId);
-
-				var errorResult = new Result.Fail();
-				if (neededOrganization == null)
-					errorResult.Data.Add("В базе нет данных об организацияи с указанным Id");
-				if (neededTarif == null)
-					errorResult.Data.Add("В базе нет данных о тарифе с указанным Id");
-				if (errorResult.Data.Any())
-					return BadRequest(errorResult);
 
 				License currentLicense = new License()
 				{
@@ -136,7 +126,7 @@ namespace LicenseServer.Controllers
 				var license = await _context.Licenses.FindAsync(id);
 
 				if (license == null)
-					return BadRequest(new Result.Fail() { Data = { "Указана не существующая лицензия или не корректный Id лицензии" } });
+					return BadRequest(new Result.Fail() { Data = { "Указана не существующая лицензия" } });
 
 				_context.Licenses.Remove(license);
 				await _context.SaveChangesAsync();

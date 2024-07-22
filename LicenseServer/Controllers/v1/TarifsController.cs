@@ -1,6 +1,7 @@
 ﻿using LicenseServer.Database;
 using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
+using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.EntityFrameworkCore;
@@ -22,10 +23,9 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				var errorResult = new Result.Fail();
-				if (!Enum.IsDefined(typeof(ProgramType),tarif.Program))
-					errorResult.Data.Add("Указана не существующая программа");
-				if (tarif.DaysCount <= 0)
-					errorResult.Data.Add("Количество дней не может быть меньше или равняться 0");
+				errorResult.Data.AddRange(Validator.IsValidProgram(tarif.Program));
+				errorResult.Data.AddRange(Validator.IsValidPrice(tarif.Price));
+				errorResult.Data.AddRange(Validator.IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
 
@@ -59,8 +59,8 @@ namespace LicenseServer.Controllers.v1
 					
 				}).ToListAsync();
 
-			if (!tariff.Any())
-					return Ok(new Result.Success<string> { Data = "В базе нет данных" });
+				if (!tariff.Any())
+						return Ok(new Result.Success<string> { Data = "В базе нет данных" });
 
 				return Ok(new Result.Success<IEnumerable<TarifAPI.TarifResponse>> { Data = tariff });
 			}

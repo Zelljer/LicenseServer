@@ -1,8 +1,11 @@
 ﻿using LicenseServer.Database;
 using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
+using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using System.Text.RegularExpressions;
 
 namespace LicenseServer.Controllers.v1
 {
@@ -19,10 +22,8 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				var errorResult = new Result.Fail();
-				if (page <= 0)
-					errorResult.Data.Add("Укажите нужный номер страницы. Отсчет страниц начинается с 1");
-				if (pageSize <= 0)
-					errorResult.Data.Add("Укажите, сколько элементов будет отображаться на странице (размер страницы)");
+				errorResult.Data.AddRange(Validator.IsValidData(page, "Укажите нужный номер страницы. Отсчет страниц начинается с 1"));
+				errorResult.Data.AddRange(Validator.IsValidData(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)"));
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
 
@@ -71,14 +72,11 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				var errorResult = new Result.Fail();
-				if (organization.Inn.Length == 0)
-					errorResult.Data.Add("Укажите корректный ИНН");
-				if (organization.Inn.Length != 12 && organization.Kpp.Length == 0)
-					errorResult.Data.Add("Только у ИП может отсутствовать КПП");
-				if (organization.Email.Length == 0)
-					errorResult.Data.Add("Укажите корректную эл. почту");
-				if (organization.Phone.Length == 0)
-					errorResult.Data.Add("Укажите корректный телефон");
+				errorResult.Data.AddRange(Validator.IsValidInn(organization.Inn));
+				if (organization.Inn.Length != 12)
+					errorResult.Data.AddRange(Validator.IsValidKpp(organization.Kpp));
+				errorResult.Data.AddRange(Validator.IsValidEmail(organization.Email));
+				errorResult.Data.AddRange(Validator.IsValidPhone(organization.Phone));
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
 
