@@ -1,4 +1,4 @@
-﻿namespace LicenseServer.Models.Database
+﻿namespace LicenseServer.Models
 {
     public enum ProgramType
     {

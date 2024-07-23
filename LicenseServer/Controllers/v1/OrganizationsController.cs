@@ -4,40 +4,53 @@ using LicenseServer.Models.Database;
 using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
-using System.Text.RegularExpressions;
+using System.ComponentModel.DataAnnotations;
+using ValidationsCollection;
+using Validator = LicenseServer.Utils.Validator;
 
 namespace LicenseServer.Controllers.v1
 {
-    [ApiController]
+	[ApiController]
 	[Route("api/[controller]")]
-	public class OrganizationsController : ControllerBase
+	public class OrganizationsController(ApplicationContext context, ILogger<OrganizationsController> logger) : ControllerBase
 	{
-		private readonly ApplicationContext _context;
-		public OrganizationsController(ApplicationContext context) => _context = context;
+		private readonly ApplicationContext _context = context;
+		private readonly ILogger<OrganizationsController> _logger = logger;
 
 		[HttpGet("organizations")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
-		public async Task<ActionResult<PagedResult<OrganizationsLiceses>>> GetOrganizations(int page = 1, int pageSize = 10)
+		public async Task<ActionResult> GetOrganizations(int page, int pageSize)
 		{
 			try
 			{
 				var errorResult = new Result.Fail();
-				errorResult.Data.AddRange(Validator.IsValidData(page, "Укажите нужный номер страницы. Отсчет страниц начинается с 1"));
-				errorResult.Data.AddRange(Validator.IsValidData(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)"));
+
+				errorResult.Data
+					.AddRange(Validator
+					.IsValidData(page, "Укажите нужный номер страницы. Отсчет страниц начинается с 1")
+					);
+
+				errorResult.Data
+					.AddRange(Validator
+					.IsValidData(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)")
+					);
+
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
 
 				var organizations = await _context.Organizations
-					.Skip((page - 1) * pageSize)
+					.Skip((page-1) * pageSize)
 					.Take(pageSize)
 					.ToListAsync();
 
 				if (!organizations.Any())
-					return Ok(new Result.Success<string> { Data = "В базе нет данных или совершен переход на не существующую страницу" });
+					return Ok(new Result.Success<string> {});
 
-				var licenses = await _context.Licenses.Include(l => l.Organization).Include(l => l.Tarif).ToListAsync();
+				var licenses = await _context.Licenses
+					.Include(l => l.Organization)
+					.Include(l => l.Tarif)
+					.ToListAsync();
 
-				var data = organizations.Select(organization => new OrganizationsLiceses
+				var data = organizations.Select(organization => new OrganizationsLiceses 
 				{
 					Organization = organization,
 					Licenses = licenses.Where(l =>  l.Organization.Id == organization.Id) 
@@ -49,38 +62,51 @@ namespace LicenseServer.Controllers.v1
 						DateCreated = l.DateCreated,
 						StartDate = l.StartDate,
 						EndDate = l.EndDate,
-					}).ToList()}).ToList();
+					}).ToList()});
 
 					var currentPage = new PagedResult<OrganizationsLiceses>
 					{
 						Items = data,
-						TotalPages = (int)Math.Ceiling(organizations.Count / (double)pageSize),
+						TotalPages = (int)Math.Ceiling(_context.Organizations.Count() / (double)pageSize),
 						CurrentPage = page
 					};
 
 				return Ok(new Result.Success<PagedResult<OrganizationsLiceses>> { Data = currentPage });
 			}
-			catch
+			catch (Exception ex)
 			{
+				_logger.LogError(ex.Message);
 				return BadRequest(new Result.Fail { Data = { "Ошибка при выполнении запроса." } });
 			}
 		}
 
 		[HttpPost("create")] // 8. POST Метод добавления организации
-		public async Task<ActionResult<Tarif>> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
+		public async Task<ActionResult> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{
 			try
 			{
 				var errorResult = new Result.Fail();
-				errorResult.Data.AddRange(Validator.IsValidInn(organization.Inn));
-				if (organization.Inn.Length != 12)
-					errorResult.Data.AddRange(Validator.IsValidKpp(organization.Kpp));
-				errorResult.Data.AddRange(Validator.IsValidEmail(organization.Email));
-				errorResult.Data.AddRange(Validator.IsValidPhone(organization.Phone));
-				if (errorResult.Data.Any())
-					return BadRequest(errorResult);
 
-				Organization currentOrganization = new Organization()
+				if (!Validations
+					.IsValidInn(organization.Inn))
+					errorResult.Data.Add("Введен не корректный ИНН");
+
+				if (organization.Inn.Length != 12 && !Validations
+					.IsValidKpp(organization.Kpp))
+					errorResult.Data.Add("Введен не корректный КПП");
+
+				errorResult.Data
+					.AddRange(Validator
+					.IsValidEmail(organization.Email));
+
+				errorResult.Data
+					.AddRange(Validator
+					.IsValidPhone(organization.Phone));
+
+				if (errorResult.Data.Any())
+					return BadRequest(errorResult); 
+
+				OrganizationEntity currentOrganization = new OrganizationEntity()
 				{
 					Inn = organization.Inn,
 					Kpp = organization.Inn.Length == 12 ? "" : organization.Kpp,
@@ -90,9 +116,13 @@ namespace LicenseServer.Controllers.v1
 				_context.Organizations.Add(currentOrganization);
 				await _context.SaveChangesAsync();
 
-				return CreatedAtAction(nameof(GetOrganizations), new { id = currentOrganization.Id }, new Result.Success<Organization> { Data = currentOrganization });
+				return CreatedAtAction(nameof(GetOrganizations), new { id = currentOrganization.Id }, new Result.Success<OrganizationEntity> { Data = currentOrganization });
 			}
-			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
+			catch (Exception ex) 
+			{
+				_logger.LogError(ex.Message);
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+			}
 		}
 	}
 }

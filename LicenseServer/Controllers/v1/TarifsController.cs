@@ -1,4 +1,5 @@
 ﻿using LicenseServer.Database;
+using LicenseServer.Models;
 using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
 using LicenseServer.Utils;
@@ -12,24 +13,32 @@ namespace LicenseServer.Controllers.v1
 {
     [ApiController]
 	[Route("api/[controller]")]
-	public class TarifsController : ControllerBase
+	public class TarifsController(ApplicationContext context, ILogger<TarifsController> logger) : ControllerBase
 	{
-		private readonly ApplicationContext _context;
-		public TarifsController(ApplicationContext context) => _context = context;
+		private readonly ApplicationContext _context = context;
+		private readonly ILogger<TarifsController> _logger = logger;
 
 		[HttpPost("create")] // 0. POST Метод создания тарифа
-		public async Task<ActionResult<Tarif>> CreateTarif(TarifAPI.TarifRequest tarif)
+		public async Task<ActionResult> CreateTarif(TarifAPI.TarifRequest tarif)
 		{
 			try
 			{
 				var errorResult = new Result.Fail();
-				errorResult.Data.AddRange(Validator.IsValidProgram(tarif.Program));
-				errorResult.Data.AddRange(Validator.IsValidPrice(tarif.Price));
-				errorResult.Data.AddRange(Validator.IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
+
+				if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
+					errorResult.Data.Add("Указана не существующая прогрмма");
+
+				if (tarif.Price < 0)
+					errorResult.Data.Add("Указана не корректная цена");
+
+				errorResult.Data
+					.AddRange(Validator
+					.IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
+
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
 
-				Tarif currentTarif = new Tarif()
+				TarifEntity currentTarif = new TarifEntity()
 				{
 					Name = tarif.Name,
 					Program = tarif.Program,
@@ -39,13 +48,17 @@ namespace LicenseServer.Controllers.v1
 				_context.Tarifs.Add(currentTarif);
 				await _context.SaveChangesAsync();
 
-				return CreatedAtAction(nameof(GetTarifs), new { id = currentTarif.Id }, new Result.Success<Tarif> { Data = currentTarif });
+				return CreatedAtAction(nameof(GetTarifs), new { id = currentTarif.Id }, new Result.Success<TarifEntity> { Data = currentTarif });
 			}
-			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
+			catch (Exception ex)
+			{
+				_logger.LogError(ex.Message);
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+			}
 		}
 
 		[HttpGet("tarifs")] // 1. GET Метод получения списка информации о тарифах, которые продает ГК ТриАр (вовзращать список)
-		public async Task<ActionResult<IEnumerable<TarifAPI.TarifResponse>>> GetTarifs()
+		public async Task<ActionResult> GetTarifs()
 		{
 			try
 			{
@@ -60,15 +73,19 @@ namespace LicenseServer.Controllers.v1
 				}).ToListAsync();
 
 				if (!tariff.Any())
-						return Ok(new Result.Success<string> { Data = "В базе нет данных" });
+						return Ok(new Result.Success<string> { });
 
 				return Ok(new Result.Success<IEnumerable<TarifAPI.TarifResponse>> { Data = tariff });
 			}
-			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
+			catch (Exception ex)
+			{
+				_logger.LogError(ex.Message);
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+			}
 		}
 
 		[HttpGet("tarifsId")] // 2. GET Метод получения списка информации 1 тарифе, которую продает ГК ТриАр (возвращать 1 запись по id )
-		public async Task<ActionResult<TarifAPI.TarifResponse>> GetTariffById(int id)
+		public async Task<ActionResult> GetTariffById(int id)
 		{
 			try
 			{
@@ -77,7 +94,7 @@ namespace LicenseServer.Controllers.v1
 
 				var tarif = await _context.Tarifs.FindAsync(id);
 				if (tarif == null)
-					return Ok(new Result.Success<string> { Data = "В базе нет данных о тарифе с указанным Id" });
+					return Ok(new Result.Success<string> { });
 
 				TarifAPI.TarifResponse currentTarif = new TarifAPI.TarifResponse()
 				{
@@ -90,7 +107,11 @@ namespace LicenseServer.Controllers.v1
 
 				return Ok(new Result.Success<TarifAPI.TarifResponse>() { Data = currentTarif }) ;
 			}
-			catch { return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); }
+			catch (Exception ex)
+			{
+				_logger.LogError(ex.Message);
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } });  
+			}
 		}
 	}
 }

@@ -1,9 +1,8 @@
-﻿using LicenseServer.Models.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LicenseServer.Models.API
 {
-	public class TarifAPI
+    public class TarifAPI
 	{
 		public class TarifResponse
 		{

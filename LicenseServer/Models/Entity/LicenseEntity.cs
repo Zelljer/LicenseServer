@@ -2,17 +2,12 @@
 
 namespace LicenseServer.Models.Database
 {
-    public class License : BaseInformation
+    public class LicenseEntity : BaseEntity
     {
-		[Required]
-		public virtual Organization Organization { get; set; }
-		[Required]
-		public virtual Tarif Tarif { get; set; }
-		[Required]
+		public virtual OrganizationEntity Organization { get; set; }
+		public virtual TarifEntity Tarif { get; set; }
 		public DateTime DateCreated { get; set; }
-		[Required]
 		public DateTime StartDate { get; set; }
-		[Required]
 		public DateTime EndDate { get; set; }
     }
 }

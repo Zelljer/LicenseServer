@@ -11,7 +11,7 @@ namespace LicenseServer.Models.API
 			[Required]
 			public string Inn { get; set; }
 			public string? Kpp { get; set; }
-			[Required]
+			[Required, DataType(DataType.EmailAddress)]
 			public string Email { get; set; }
 			[Required]
 			public string Phone { get; set; }
@@ -21,7 +21,7 @@ namespace LicenseServer.Models.API
 			[Required]
 			public required string Inn { get; set; }
 			public string? Kpp { get; set; }
-			[Required]
+			[Required, DataType(DataType.EmailAddress)]
 			public string Email { get; set; }
 			[Required]
 			public string Phone { get; set; }

@@ -1,16 +1,14 @@
 ﻿using LicenseServer.Models.Database;
 using Microsoft.EntityFrameworkCore;
-using License = LicenseServer.Models.Database.License;
+using LicenseEntity = LicenseServer.Models.Database.LicenseEntity;
 
 namespace LicenseServer.Database
 {
-    public class ApplicationContext : DbContext
+    public class ApplicationContext(DbContextOptions<ApplicationContext> options) : DbContext(options)
 	{
-		public ApplicationContext(DbContextOptions<ApplicationContext> options)
-		: base(options) => Database.EnsureCreated();
+		public DbSet<TarifEntity> Tarifs { get; set; }
+		public DbSet<LicenseEntity> Licenses { get; set; }
+		public DbSet<OrganizationEntity> Organizations { get; set; }
 
-		public DbSet<Tarif> Tarifs { get; set; }
-		public DbSet<License> Licenses { get; set; }
-		public DbSet<Organization> Organizations { get; set; }
 	}
 }
