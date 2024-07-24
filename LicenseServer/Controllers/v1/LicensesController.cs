@@ -1,7 +1,6 @@
 ﻿using LicenseServer.Database;
 using LicenseServer.Models;
 using LicenseServer.Models.API;
-using LicenseServer.Models.Database;
 using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +9,7 @@ using LicenseEntity = LicenseServer.Models.Database.LicenseEntity;
 
 namespace LicenseServer.Controllers
 {
-    [ApiController]
+	[ApiController]
 	[Route("api/[controller]")]
 	public class LicensesController(ApplicationContext context, ILogger<LicensesController> logger) : ControllerBase
 	{

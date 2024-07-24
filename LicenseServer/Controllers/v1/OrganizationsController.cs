@@ -1,10 +1,8 @@
 ﻿using LicenseServer.Database;
 using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
-using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using ValidationsCollection;
 using Validator = LicenseServer.Utils.Validator;
 
