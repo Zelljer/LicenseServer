@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LicenseServer.Migrations
 {
-    [DbContext(typeof(ApplicationContext))]
+    [DbContext(typeof(Database.AppContext))]
     [Migration("20240724035302_init")]
     partial class init
     {

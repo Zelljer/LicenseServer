@@ -1,4 +1,4 @@
-﻿namespace LicenseServer.Models.API
+﻿namespace LicenseServer.Database.Models
 {
     public class PagedResult<T>
     {

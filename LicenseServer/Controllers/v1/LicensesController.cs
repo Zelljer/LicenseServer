@@ -11,9 +11,9 @@ namespace LicenseServer.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class LicensesController(ApplicationContext context, ILogger<LicensesController> logger) : ControllerBase
+	public class LicensesController(Database.AppContext context, ILogger<LicensesController> logger) : ControllerBase
 	{
-		private readonly ApplicationContext _context = context;
+		private readonly Database.AppContext _context = context;
 		private readonly ILogger<LicensesController> _logger = logger;
 
 		[HttpGet("licensesOrg")] // 3. GET Метод получения активных лицензий по id организации 
@@ -37,7 +37,7 @@ namespace LicenseServer.Controllers
 					}).ToArrayAsync();
 
 				if (!licenses.Any())
-					return Ok(new Result.Success<string> { } );
+					return Ok(new { Status = "Success" } );
 
 				return Ok(new Result.Success<IEnumerable<LicenseAPI.LicenseResponse>> { Data = licenses });
 			}
@@ -49,7 +49,7 @@ namespace LicenseServer.Controllers
 		}
 
 		[HttpGet("licensesOrgProg")] // 4. GET Метод получения активных лицензий по id организации по конкретной программе
-		public async Task<ActionResult> GetLicensesByOrgWithProg(int orgId, ProgramType programId )
+		public async Task<ActionResult> GetLicensesByOrgWithProg(int orgId, ProgramTyp programId )
 		{
 			try
 			{
@@ -61,7 +61,7 @@ namespace LicenseServer.Controllers
 					.Find(orgId) == null)
 					errorResult.Data.Add("Нет организации с таким Id");
 
-				if (!Enum.IsDefined(typeof(ProgramType), programId))
+				if (!Enum.IsDefined(typeof(ProgramTyp), programId))
 					errorResult.Data.Add("Указана не существующая программа");
 
 				if (errorResult.Data.Any())

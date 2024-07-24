@@ -1,0 +1,6 @@
+@LicenseServer.Domain_HostAddress = http://localhost:5273
+
+GET {{LicenseServer.Domain_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

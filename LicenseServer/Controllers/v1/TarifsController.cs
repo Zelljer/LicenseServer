@@ -10,9 +10,9 @@ namespace LicenseServer.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class TarifsController(ApplicationContext context, ILogger<TarifsController> logger) : ControllerBase
+	public class TarifsController(Database.AppContext context, ILogger<TarifsController> logger) : ControllerBase
 	{
-		private readonly ApplicationContext _context = context;
+		private readonly Database.AppContext _context = context;
 		private readonly ILogger<TarifsController> _logger = logger;
 
 		[HttpPost("create")] // 0. POST Метод создания тарифа
@@ -22,7 +22,7 @@ namespace LicenseServer.Controllers.v1
 			{
 				var errorResult = new Result.Fail();
 
-				if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
+				if (!Enum.IsDefined(typeof(ProgramTyp), tarif.Program))
 					errorResult.Data.Add("Указана не существующая прогрмма");
 
 				if (tarif.Price < 0)
