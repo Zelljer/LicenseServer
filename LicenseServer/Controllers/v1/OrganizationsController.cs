@@ -38,7 +38,7 @@ namespace LicenseServer.Controllers.v1
 					return BadRequest(errorResult);
 
 				var organizations = await _context.Organizations
-					.Skip((page-1) * pageSize)
+					.Skip((page - 1) * pageSize)
 					.Take(pageSize)
 					.ToListAsync();
 
@@ -87,12 +87,10 @@ namespace LicenseServer.Controllers.v1
 			{
 				var errorResult = new Result.Fail();
 
-				if (!Validations
-					.IsValidInn(organization.Inn))
+				if (!Validations.IsValidInn(organization.Inn))
 					errorResult.Data.Add("Введен не корректный ИНН");
 
-				if (organization.Inn.Length != 12 && !Validations
-					.IsValidKpp(organization.Kpp))
+				if (organization.Inn.Length != 12 && !Validations.IsValidKpp(organization.Kpp))
 					errorResult.Data.Add("Введен не корректный КПП");
 
 				errorResult.Data
@@ -109,7 +107,7 @@ namespace LicenseServer.Controllers.v1
 				OrganizationEntity currentOrganization = new OrganizationEntity()
 				{
 					Inn = organization.Inn,
-					Kpp = organization.Inn.Length == 12 ? "" : organization.Kpp,
+					Kpp = organization.Inn.Length == 12 ? null : organization.Kpp,
 					Email = organization.Email,
 					Phone = organization.Phone
 				};

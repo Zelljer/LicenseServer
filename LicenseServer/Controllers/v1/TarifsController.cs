@@ -4,14 +4,11 @@ using LicenseServer.Models.API;
 using LicenseServer.Models.Database;
 using LicenseServer.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Extensions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LicenseServer.Controllers.v1
 {
-    [ApiController]
+	[ApiController]
 	[Route("api/[controller]")]
 	public class TarifsController(ApplicationContext context, ILogger<TarifsController> logger) : ControllerBase
 	{
@@ -53,7 +50,7 @@ namespace LicenseServer.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выполнении запроса" } }); 
 			}
 		}
 
@@ -80,7 +77,7 @@ namespace LicenseServer.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выполнении запроса" } }); 
 			}
 		}
 
@@ -110,7 +107,7 @@ namespace LicenseServer.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } });  
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выполнении запроса" } });  
 			}
 		}
 	}

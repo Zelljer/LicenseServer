@@ -25,15 +25,17 @@ namespace LicenseServer.Controllers
 				if (orgId <= 0)
 					return BadRequest(new Result.Fail() { Data = { "Укажите корректный Id лицензии" } });
 
-				var licenses = await _context.Licenses.Where(l => l.Organization.Id == orgId).Select(t => new LicenseAPI.LicenseResponse
-				{
-					Id = t.Id,
-					OrganizationId = t.Organization.Id,
-					TarifId = t.Tarif.Id,
-					DateCreated = t.DateCreated,
-					StartDate = t.StartDate,
-					EndDate = t.EndDate,
-				}).ToArrayAsync();
+				var licenses = await _context.Licenses
+					.Where(l => l.Organization.Id == orgId)
+					.Select(t => new LicenseAPI.LicenseResponse
+					{
+						Id = t.Id,
+						OrganizationId = t.Organization.Id,
+						TarifId = t.Tarif.Id,
+						DateCreated = t.DateCreated,
+						StartDate = t.StartDate,
+						EndDate = t.EndDate,
+					}).ToArrayAsync();
 
 				if (!licenses.Any())
 					return Ok(new Result.Success<string> { } );
@@ -43,7 +45,7 @@ namespace LicenseServer.Controllers
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выполнении запроса" } }); 
 			}
 		}
 
@@ -57,11 +59,11 @@ namespace LicenseServer.Controllers
 				errorResult.Data.AddRange(Validator.IsValidData(orgId, "Указан не корректный Id организации"));
 
 				if (_context.Organizations
-					.FindAsync(orgId).Result == null)
+					.Find(orgId) == null)
 					errorResult.Data.Add("Нет организации с таким Id");
 
 				if (!Enum.IsDefined(typeof(ProgramType), programId))
-					errorResult.Data.Add("Указана не существующая прогрмма");
+					errorResult.Data.Add("Указана не существующая программа");
 
 				if (errorResult.Data.Any())
 					return BadRequest(errorResult);
@@ -70,7 +72,8 @@ namespace LicenseServer.Controllers
 					.Include(l => l.Organization)
 					.Include(l => l.Tarif)
 
-					.Where(l => l.Organization.Id == orgId && l.Tarif.Program == programId && l.EndDate > DateTime.Now).Select(t => new LicenseAPI.LicenseResponse
+					.Where(l => l.Organization.Id == orgId && l.Tarif.Program == programId && l.EndDate > DateTime.Now)
+					.Select(t => new LicenseAPI.LicenseResponse
 					{
 						Id = t.Id,
 						OrganizationId = t.Organization.Id,
@@ -88,7 +91,7 @@ namespace LicenseServer.Controllers
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выполнении запроса" } }); 
 			}
 		}
 
@@ -122,13 +125,16 @@ namespace LicenseServer.Controllers
 				else
 					errorIdResult.Data.Add("Введите дату создания лицензии в формате dd.mm.yyyy" );
 
+				var neededOrganization = _context.Organizations.Find(licenseData.OrganizationId);
+				var neededTarif = _context.Tarifs.Find(licenseData.TarifId);
+
+				if (neededOrganization == null || neededTarif == null)
+					errorIdResult.Data.Add("В базе нет данных о организациях или тарифах");
+
 				if (errorIdResult.Data.Any())
 					return BadRequest(errorIdResult);
 
-				OrganizationEntity neededOrganization = await _context.Organizations.FindAsync(licenseData.OrganizationId);
-				TarifEntity neededTarif = await _context.Tarifs.FindAsync(licenseData.TarifId);
-
-				LicenseEntity currentLicense = new()
+				var currentLicense = new LicenseEntity
 				{
 					Organization = neededOrganization,
 					Tarif = neededTarif,
@@ -170,7 +176,7 @@ namespace LicenseServer.Controllers
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new Result.Fail() { Data = { "Ошибка при выпролнении запроса" } }); 
+				return BadRequest(new Result.Fail() { Data = { "Ошибка при выполнении запроса" } }); 
 			}
 		}
 	}
