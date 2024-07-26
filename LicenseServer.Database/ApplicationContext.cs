@@ -1,14 +1,24 @@
 ﻿using LicenseServer.Database.Entity;
 using Microsoft.EntityFrameworkCore;
-using LicenseEntity = LicenseServer.Database.Entity.LicenseEntity;
 
 namespace LicenseServer.Database
 {
-    public class ApplicationContext(DbContextOptions<ApplicationContext> options) : DbContext(options)
-    {
-        public DbSet<TarifEntity> Tarifs { get; set; }
+	public class ApplicationContext : DbContext
+	{
+		public ApplicationContext() {}
+
+		public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=LicenseServer;Trusted_Connection=True;Trust Server Certificate=True;");
+		}
+
+		public DbSet<TarifEntity> Tarifs { get; set; }
         public DbSet<LicenseEntity> Licenses { get; set; }
         public DbSet<OrganizationEntity> Organizations { get; set; }
+
+		public static ApplicationContext New => new();
 
     }
 }

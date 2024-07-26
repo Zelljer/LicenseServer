@@ -1,15 +1,20 @@
-﻿using LicenseServer.Database.Models;
-using LicenseServer.Domain.Methods;
+﻿using LicenseServer.Domain.Methods;
+using LicenseServer.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace LicenseServer.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class TarifsController(TarifService tarifService) : ControllerBase
+	public class TarifsController : ControllerBase
 	{
-		private readonly TarifService _tarifService = tarifService;
+		private readonly TarifService _tarifService;
+		private readonly ILogger<TarifsController> _logger;
+		public TarifsController(ILogger<TarifsController> logger)
+		{
+			_tarifService = new TarifService();
+			_logger = logger;
+		}
 
 		[HttpPost("create")] // 0. POST Метод создания тарифа
 		public async Task<ActionResult> CreateTarif(TarifAPI.TarifRequest tarif)
@@ -19,10 +24,10 @@ namespace LicenseServer.Controllers.v1
 				var createdTarif = await _tarifService.CreateTarif(tarif);
 				return CreatedAtAction(nameof(GetTarifs), createdTarif);
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new {Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 
@@ -34,10 +39,10 @@ namespace LicenseServer.Controllers.v1
 				var tarifs = await _tarifService.GetTarifs();
 				return Ok(tarifs);
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 
@@ -49,10 +54,10 @@ namespace LicenseServer.Controllers.v1
 				var tarifs = await _tarifService.GetTariffById(id);
 				return Ok(tarifs);
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 	}

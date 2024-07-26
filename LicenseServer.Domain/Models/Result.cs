@@ -1,4 +1,4 @@
-﻿namespace LicenseServer.Database.Models
+﻿namespace LicenseServer.Domain.Models
 {
     public interface IHTTPResult 
 	{

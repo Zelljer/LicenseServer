@@ -1,6 +1,6 @@
 ﻿using LicenseServer.Database.Entity;
 
-namespace LicenseServer.Database.Models
+namespace LicenseServer.Domain.Models
 {
     public class OrganizationsLiceses
     {

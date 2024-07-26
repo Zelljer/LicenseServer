@@ -1,38 +1,38 @@
 ﻿using LicenseServer.Database;
+using LicenseServer.Database.Dependencies;
 using LicenseServer.Database.Entity;
-using LicenseServer.Database.Models;
+using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
-using LicenseServer.Models;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
 using System.Globalization;
 
 namespace LicenseServer.Domain.Methods
 {
-	public class LicensService(ApplicationContext context)
+	public class LicensService
 	{
-		private readonly ApplicationContext _context = context;
-
 		public async Task<IHTTPResult> GetLicensesByOrg(int orgId)
 		{
 			try
 			{
-				if (orgId <= 0)
-					return new Fail { Data = { "Не существует организации с таким Id" } };
+				using (var context = ApplicationContext.New)
+				{
+					if (orgId <= 0)
+						return new Fail { Data = { "Не корректный Id организации" } };
 
-				var licenses = await _context.Licenses
-					.Where(l => l.Organization.Id == orgId)
-					.Select(t => new LicenseAPI.LicenseResponse
-					{
-						Id = t.Id,
-						OrganizationId = t.Organization.Id,
-						TarifId = t.Tarif.Id,
-						DateCreated = t.DateCreated,
-						StartDate = t.StartDate,
-						EndDate = t.EndDate,
-					}).ToListAsync();
+					var licenses = await context.Licenses
+						.Where(l => l.Organization.Id == orgId)
+						.Select(t => new LicenseAPI.LicenseResponse
+						{
+							Id = t.Id,
+							OrganizationId = t.Organization.Id,
+							TarifId = t.Tarif.Id,
+							DateCreated = t.DateCreated,
+							StartDate = t.StartDate,
+							EndDate = t.EndDate,
+						}).ToListAsync();
 
-				return new Success<List<LicenseAPI.LicenseResponse>> { Data = licenses };
+					return new Success<List<LicenseAPI.LicenseResponse>> { Data = licenses };
+				}
 			}
 			catch
 			{
@@ -44,35 +44,38 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				var errorResult = new Fail();
+				using (var context = ApplicationContext.New)
+				{
+					var errorResult = new Fail();
 
-				errorResult.Data.AddRange(Validator.IsValidData(orgId, "Указан не корректный Id организации"));
+					errorResult.Data.AddRange(Validator.IsValidData(orgId, "Не корректный Id организации"));
 
-				if (_context.Organizations
-					.Find(orgId) == null)
-					errorResult.Data.Add("Нет организации с таким Id");
+					if (context.Organizations
+						.Find(orgId) == null)
+						errorResult.Data.Add("Нет организации с таким Id");
 
-				if (!Enum.IsDefined(typeof(ProgramType), programId))
-					errorResult.Data.Add("Указана не существующая программа");
+					if (!Enum.IsDefined(typeof(ProgramType), programId))
+						errorResult.Data.Add("Указана не существующая программа");
 
-				if (errorResult.Data.Any())
-					return errorResult;
+					if (errorResult.Data.Any())
+						return errorResult;
 
-				var licenses = await _context.Licenses
-					.Include(l => l.Organization)
-					.Include(l => l.Tarif)
-					.Where(l => l.Organization.Id == orgId && l.Tarif.Program == programId && l.EndDate > DateTime.Now)
-					.Select(t => new LicenseAPI.LicenseResponse
-					{
-						Id = t.Id,
-						OrganizationId = t.Organization.Id,
-						TarifId = t.Tarif.Id,
-						DateCreated = t.DateCreated,
-						StartDate = t.StartDate,
-						EndDate = t.EndDate,
-					}).ToListAsync();
+					var licenses = await context.Licenses
+						.Include(l => l.Organization)
+						.Include(l => l.Tarif)
+						.Where(l => l.Organization.Id == orgId && l.Tarif.Program == programId && l.EndDate > DateTime.Now)
+						.Select(t => new LicenseAPI.LicenseResponse
+						{
+							Id = t.Id,
+							OrganizationId = t.Organization.Id,
+							TarifId = t.Tarif.Id,
+							DateCreated = t.DateCreated,
+							StartDate = t.StartDate,
+							EndDate = t.EndDate,
+						}).ToListAsync();
 
-				return new Success<List<LicenseAPI.LicenseResponse>> { Data = licenses };
+					return new Success<List<LicenseAPI.LicenseResponse>> { Data = licenses };
+				}
 			}
 			catch
 			{
@@ -84,54 +87,56 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				var errorIdResult = new Fail();
-
-				errorIdResult.Data
-					.AddRange(Validator
-					.IsValidData(licenseData.OrganizationId, "Укажите Id организации"));
-
-				if (!_context.Organizations
-					.Where(o => o.Id == licenseData.OrganizationId)
-					.Any())
-					errorIdResult.Data.Add("Нет организации с таким Id");
-
-				errorIdResult.Data
-					.AddRange(Validator
-					.IsValidData(licenseData.TarifId, "Указан не корректный Id тарифа"));
-
-				if (!_context.Tarifs
-					.Where(t => t.Id == licenseData.TarifId)
-					.Any())
-					errorIdResult.Data.Add("Нет тарифа с таким Id");
-
-				var currentLicenseDateStart = new DateTime();
-				if (DateTime.TryParseExact(licenseData.DateStart, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
-					currentLicenseDateStart = daeteTime;
-				else
-					errorIdResult.Data.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
-
-				var neededOrganization = _context.Organizations.Find(licenseData.OrganizationId);
-				var neededTarif = _context.Tarifs.Find(licenseData.TarifId);
-
-				if (neededOrganization == null || neededTarif == null)
-					errorIdResult.Data.Add("В базе нет данных о организациях или тарифах");
-
-				if (errorIdResult.Data.Any())
-					return errorIdResult;
-
-				var currentLicense = new LicenseEntity
+				using (var context = ApplicationContext.New)
 				{
-					Organization = neededOrganization,
-					Tarif = neededTarif,
-					DateCreated = DateTime.Now,
-					StartDate = currentLicenseDateStart,
-					EndDate = currentLicenseDateStart + TimeSpan.FromDays(neededTarif.DaysCount),
-				};
-				_context.Licenses.Add(currentLicense);
-				await _context.SaveChangesAsync();
+					var errorIdResult = new Fail();
 
-				return new Success<LicenseAPI.LicenseRequest> { Data = licenseData };
+					errorIdResult.Data
+						.AddRange(Validator
+						.IsValidData(licenseData.OrganizationId, "Не корректный Id организации"));
 
+					if (!context.Organizations
+						.Where(o => o.Id == licenseData.OrganizationId)
+						.Any())
+						errorIdResult.Data.Add("Нет организации с таким Id");
+
+					errorIdResult.Data
+						.AddRange(Validator
+						.IsValidData(licenseData.TarifId, "Не корректный Id тарифа"));
+
+					if (!context.Tarifs
+						.Where(t => t.Id == licenseData.TarifId)
+						.Any())
+						errorIdResult.Data.Add("Нет тарифа с таким Id");
+
+					var currentLicenseDateStart = new DateTime();
+					if (DateTime.TryParseExact(licenseData.DateStart, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
+						currentLicenseDateStart = daeteTime;
+					else
+						errorIdResult.Data.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
+
+					var neededOrganization = context.Organizations.Find(licenseData.OrganizationId);
+					var neededTarif = context.Tarifs.Find(licenseData.TarifId);
+
+					if (neededOrganization == null || neededTarif == null)
+						errorIdResult.Data.Add("В базе нет данных о организациях или тарифах");
+
+					if (errorIdResult.Data.Any())
+						return errorIdResult;
+
+					var currentLicense = new LicenseEntity
+					{
+						Organization = neededOrganization,
+						Tarif = neededTarif,
+						DateCreated = DateTime.Now,
+						StartDate = currentLicenseDateStart,
+						EndDate = currentLicenseDateStart + TimeSpan.FromDays(neededTarif.DaysCount),
+					};
+					context.Licenses.Add(currentLicense);
+					await context.SaveChangesAsync();
+
+					return new Success<LicenseAPI.LicenseRequest> { Data = licenseData };
+				}
 			}
 			catch
 			{
@@ -143,18 +148,21 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				if (id <= 0)
-					return new Fail { Data = { "Укажите корректный Id лицензии" } };
+				using (var context = ApplicationContext.New)
+				{
+					if (id <= 0)
+						return new Fail { Data = { "Не корректный Id лицензии" } };
 
-				var license = await _context.Licenses.FindAsync(id);
+					var license = await context.Licenses.FindAsync(id);
 
-				if (license == null)
-					return new Fail { Data = { "Указана не существующая лицензия" } };
+					if (license == null)
+						return new Fail { Data = { "Указана не существующая лицензия" } };
 
-				_context.Licenses.Remove(license);
-				await _context.SaveChangesAsync();
+					context.Licenses.Remove(license);
+					await context.SaveChangesAsync();
 
-				return new Success<string> { Data = "Данные удалены" };
+					return new Success<string> { Data = "Данные удалены" };
+				}
 			}
 			catch 
 			{

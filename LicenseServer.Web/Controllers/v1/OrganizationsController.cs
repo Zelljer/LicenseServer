@@ -1,14 +1,21 @@
-﻿using LicenseServer.Database.Models;
-using LicenseServer.Domain.Methods;
+﻿using LicenseServer.Domain.Methods;
+using LicenseServer.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LicenseServer.Controllers.v1
+namespace LicenseServer.Web.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class OrganizationsController(OrganizationService organizationService) : ControllerBase
+	public class OrganizationsController : ControllerBase
 	{
-		private readonly OrganizationService _organizationService = organizationService;
+		private readonly OrganizationService _organizationService;
+		private readonly ILogger<OrganizationsController> _logger;
+
+		public OrganizationsController(ILogger<OrganizationsController> logger)
+		{
+			_organizationService = new OrganizationService();
+			_logger = logger;
+		}
 
 		[HttpGet("organizations")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
 		public async Task<ActionResult> GetOrganizations(int page, int pageSize)
@@ -18,10 +25,10 @@ namespace LicenseServer.Controllers.v1
 				var licenses = await _organizationService.GetOrganizations(page, pageSize);
 				return Ok(licenses);
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 			
@@ -34,10 +41,10 @@ namespace LicenseServer.Controllers.v1
 				return CreatedAtAction(nameof(GetOrganizations), createdOrganization);
 
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 	}

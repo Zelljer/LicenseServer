@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LicenseServer.Migrations
+namespace LicenseServer.Database.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
     partial class ApplicationContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace LicenseServer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("LicenseServer.Models.Database.LicenseEntity", b =>
+            modelBuilder.Entity("LicenseServer.Database.Entity.LicenseEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,7 +54,7 @@ namespace LicenseServer.Migrations
                     b.ToTable("Licenses");
                 });
 
-            modelBuilder.Entity("LicenseServer.Models.Database.OrganizationEntity", b =>
+            modelBuilder.Entity("LicenseServer.Database.Entity.OrganizationEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,7 +83,7 @@ namespace LicenseServer.Migrations
                     b.ToTable("Organizations");
                 });
 
-            modelBuilder.Entity("LicenseServer.Models.Database.TarifEntity", b =>
+            modelBuilder.Entity("LicenseServer.Database.Entity.TarifEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,15 +109,15 @@ namespace LicenseServer.Migrations
                     b.ToTable("Tarifs");
                 });
 
-            modelBuilder.Entity("LicenseServer.Models.Database.LicenseEntity", b =>
+            modelBuilder.Entity("LicenseServer.Database.Entity.LicenseEntity", b =>
                 {
-                    b.HasOne("LicenseServer.Models.Database.OrganizationEntity", "Organization")
+                    b.HasOne("LicenseServer.Database.Entity.OrganizationEntity", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LicenseServer.Models.Database.TarifEntity", "Tarif")
+                    b.HasOne("LicenseServer.Database.Entity.TarifEntity", "Tarif")
                         .WithMany()
                         .HasForeignKey("TarifId")
                         .OnDelete(DeleteBehavior.Cascade)

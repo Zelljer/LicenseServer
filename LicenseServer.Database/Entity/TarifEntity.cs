@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using LicenseServer.Models;
+﻿using LicenseServer.Database.Dependencies;
 
 namespace LicenseServer.Database.Entity
 {
-    public class TarifEntity : BaseEntity
+	public class TarifEntity : BaseEntity
     {
         public string Name { get; set; }
         public ProgramType Program { get; set; }

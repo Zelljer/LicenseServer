@@ -1,16 +1,21 @@
-﻿using LicenseServer.Database.Models;
+﻿using LicenseServer.Database.Dependencies;
 using LicenseServer.Domain.Methods;
-using LicenseServer.Models;
+using LicenseServer.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 
-namespace LicenseServer.Controllers
+namespace LicenseServer.Web.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class LicensesController(LicensService licensService) : ControllerBase
+	public class LicensesController : ControllerBase
 	{
-		private readonly LicensService _licensService = licensService;
+		private readonly LicensService _licensService;
+		private readonly ILogger<LicensesController> _logger;
+		public LicensesController(ILogger<LicensesController> logger)
+		{
+			_licensService = new LicensService();
+			_logger = logger;
+		}
 
 		[HttpGet("licensesOrg")] // 3. GET Метод получения активных лицензий по id организации 
 		public async Task<ActionResult> GetLicensesByOrg(int orgId) 
@@ -20,10 +25,10 @@ namespace LicenseServer.Controllers
 				var licenses = await _licensService.GetLicensesByOrg(orgId);
 				return Ok(licenses);
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 
@@ -35,10 +40,10 @@ namespace LicenseServer.Controllers
 				var licenses = await _licensService.GetLicensesByOrgWithProg(orgId, programId);
 				return Ok(licenses);
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 
@@ -51,10 +56,10 @@ namespace LicenseServer.Controllers
 				return CreatedAtAction(nameof(GetLicensesByOrg), createdLicense);
 
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 
@@ -67,10 +72,10 @@ namespace LicenseServer.Controllers
 				return Ok(createdLicense);
 
 			}
-			catch //(Exception ex)
+			catch (Exception ex)
 			{
-				return null;
-				//_logger.LogError(ex.Message);
+				_logger.LogError(ex.Message);
+				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
 	}

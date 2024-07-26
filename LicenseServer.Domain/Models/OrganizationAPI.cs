@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LicenseServer.Database.Models
+namespace LicenseServer.Domain.Models
 {
     public class OrganizationAPI
     {

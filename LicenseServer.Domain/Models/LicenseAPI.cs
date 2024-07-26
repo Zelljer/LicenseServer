@@ -1,11 +1,6 @@
-﻿using LicenseServer.Models.Database;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.VisualBasic;
-using System.ComponentModel.DataAnnotations;
-
-namespace LicenseServer.Database.Models
+﻿namespace LicenseServer.Domain.Models
 {
-    public class LicenseAPI
+	public class LicenseAPI
     {
         public class LicenseResponse
         {

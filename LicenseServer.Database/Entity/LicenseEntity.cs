@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace LicenseServer.Database.Entity
+﻿namespace LicenseServer.Database.Entity
 {
-    public class LicenseEntity : BaseEntity
+	public class LicenseEntity : BaseEntity
     {
         public virtual OrganizationEntity Organization { get; set; }
         public virtual TarifEntity Tarif { get; set; }

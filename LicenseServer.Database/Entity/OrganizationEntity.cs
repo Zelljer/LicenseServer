@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace LicenseServer.Database.Entity
+﻿namespace LicenseServer.Database.Entity
 {
-    public class OrganizationEntity : BaseEntity
+	public class OrganizationEntity : BaseEntity
     {
         public required string Inn { get; set; }
         public string Kpp { get; set; }
