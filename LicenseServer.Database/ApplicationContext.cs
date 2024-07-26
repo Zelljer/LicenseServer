@@ -17,6 +17,8 @@ namespace LicenseServer.Database
 		public DbSet<TarifEntity> Tarifs { get; set; }
         public DbSet<LicenseEntity> Licenses { get; set; }
         public DbSet<OrganizationEntity> Organizations { get; set; }
+		public DbSet<UserEntity> Users { get; set; }
+		public DbSet<RoleEntity> Roles { get; set; }
 
 		public static ApplicationContext New => new();
 

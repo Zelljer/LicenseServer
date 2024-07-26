@@ -68,8 +68,8 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				var createdLicense = await _licensService.DeleteLicense(id);
-				return Ok(createdLicense);
+				var deleteLicense = await _licensService.DeleteLicense(id);
+				return Ok(deleteLicense);
 
 			}
 			catch (Exception ex)
