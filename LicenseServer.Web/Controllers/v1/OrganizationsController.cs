@@ -1,11 +1,13 @@
 ﻿using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LicenseServer.Web.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize]
 	public class OrganizationsController : ControllerBase
 	{
 		private readonly OrganizationService _organizationService;

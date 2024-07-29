@@ -1,4 +1,49 @@
+using LicenseServer.Domain.Methods;
+using LicenseServer.Domain.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Настройка куки
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CookieManager>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<LicensService>();
+builder.Services.AddScoped<OrganizationService>();
+builder.Services.AddScoped<TarifService>();
+
+
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = builder.Configuration["Jwt:Issuer"],
+		ValidAudience = builder.Configuration["Jwt:Issuer"],
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+	};
+
+	options.Events = new JwtBearerEvents
+	{
+		OnMessageReceived = context =>
+		{
+			context.Token = context.Request.Cookies["Authorization"];
+			return Task.CompletedTask;
+		}
+	};
+});
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
@@ -20,8 +65,9 @@ if (app.Environment.IsDevelopment())
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Приложение запущено");
 
-app.UseHttpsRedirection();
-
+// Middleware
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

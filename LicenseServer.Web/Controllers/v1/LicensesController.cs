@@ -1,12 +1,14 @@
 ﻿using LicenseServer.Database.Dependencies;
 using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LicenseServer.Web.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize]
 	public class LicensesController : ControllerBase
 	{
 		private readonly LicensService _licensService;

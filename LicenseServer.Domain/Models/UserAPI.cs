@@ -1,11 +1,12 @@
 ﻿using LicenseServer.Database.Dependencies;
 using LicenseServer.Database.Entity;
+using Microsoft.AspNetCore.Identity;
 
 namespace LicenseServer.Domain.Models
 {
 	public class UserAPI
 	{
-		public class UserResponse
+		public class UserResponse 
 		{
 			public int Id { get; set; }
 			public string Login { get; set; }
@@ -25,7 +26,7 @@ namespace LicenseServer.Domain.Models
 			public string Patronymic { get; set; }
 			public RoleType Role { get; set; }
 		}
-		public class UserAuthentificationRequest
+		public class UserAuthentificationRequest 
 		{
 			public string Login { get; set; }
 			public string Password { get; set; }

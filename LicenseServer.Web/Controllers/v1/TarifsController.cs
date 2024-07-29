@@ -1,11 +1,13 @@
 ﻿using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LicenseServer.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize]
 	public class TarifsController : ControllerBase
 	{
 		private readonly TarifService _tarifService;

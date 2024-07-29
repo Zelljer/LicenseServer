@@ -1,5 +1,6 @@
 ﻿using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LicenseServer.Web.Controllers.v1
@@ -10,20 +11,20 @@ namespace LicenseServer.Web.Controllers.v1
 	{
 		private readonly UserService _userService;
 		private readonly ILogger<UserController> _logger;
-		public UserController(ILogger<UserController> logger)
+		public UserController(ILogger<UserController> logger, UserService userService)
 		{
-			_userService = new UserService();
+			_userService = userService;
 			_logger = logger;
 		}
 
 		[HttpPost("authorization")] // POST Метод авторизация 
-		public async Task<ActionResult> Register(UserAPI.UserAuthentificationRequest user)
+		public async Task<ActionResult> Login(UserAPI.UserAuthentificationRequest user)
 		{
 			try
 			{
 				var authorizatedUser = await _userService.Login(user);
-				return Ok(authorizatedUser);
 
+				return Ok(authorizatedUser); 
 			}
 			catch (Exception ex)
 			{
@@ -46,6 +47,18 @@ namespace LicenseServer.Web.Controllers.v1
 				_logger.LogError(ex.Message);
 				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
+		}
+
+		[HttpGet("check-token")]
+		public IActionResult CheckToken()
+		{
+			var token = Request.Cookies["access_token"];
+			if (string.IsNullOrEmpty(token))
+			{
+				return BadRequest(new { Status = "Fail", Message = "Токен не найден в куки." });
+			}
+
+			return Ok(new { Status = "Success", Token = token });
 		}
 	}
 }
