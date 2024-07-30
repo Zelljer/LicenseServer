@@ -24,6 +24,9 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var licenses = await _organizationService.GetOrganizations(page, pageSize);
 				return Ok(licenses);
 			}
@@ -33,15 +36,18 @@ namespace LicenseServer.Web.Controllers.v1
 				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
 			}
 		}
-			
+
+		[Authorize(Roles = "Admin, Manager")]
 		[HttpPost("create")] // 8. POST Метод добавления организации
 		public async Task<ActionResult> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{
 			try
-			{
+			{ 
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var createdOrganization = await _organizationService.CreateOrganization(organization);
 				return CreatedAtAction(nameof(GetOrganizations), createdOrganization);
-
 			}
 			catch (Exception ex)
 			{

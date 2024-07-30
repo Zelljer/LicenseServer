@@ -18,11 +18,15 @@ namespace LicenseServer.Controllers.v1
 			_logger = logger;
 		}
 
+		[Authorize(Roles = "Admin, Manager")]
 		[HttpPost("create")] // 0. POST Метод создания тарифа
 		public async Task<ActionResult> CreateTarif(TarifAPI.TarifRequest tarif)
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var createdTarif = await _tarifService.CreateTarif(tarif);
 				return CreatedAtAction(nameof(GetTarifs), createdTarif);
 			}
@@ -53,6 +57,9 @@ namespace LicenseServer.Controllers.v1
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var tarifs = await _tarifService.GetTariffById(id);
 				return Ok(tarifs);
 			}

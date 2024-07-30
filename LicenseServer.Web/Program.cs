@@ -1,7 +1,12 @@
 using LicenseServer.Domain.Methods;
+using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,7 +59,13 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+	options.SuppressModelStateInvalidFilter = true;
+});
+
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

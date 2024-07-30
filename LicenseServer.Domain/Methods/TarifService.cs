@@ -38,6 +38,7 @@ namespace LicenseServer.Domain.Methods
 						Price = tarif.Price,
 						DaysCount = tarif.DaysCount
 					};
+
 					context.Tarifs.Add(currentTarif);
 					await context.SaveChangesAsync();
 

@@ -82,7 +82,7 @@ namespace LicenseServer.Domain.Methods
 				return new Fail{ Data = { "Произошла ошибка" } };
 			}
 		}
-		
+
 		public async Task<IHTTPResult> CreateLicense(LicenseAPI.LicenseRequest licenseData)
 		{
 			try
@@ -95,18 +95,17 @@ namespace LicenseServer.Domain.Methods
 						.AddRange(Validator
 						.IsValidData(licenseData.OrganizationId, "Не корректный Id организации"));
 
-					if (!context.Organizations
-						.Where(o => o.Id == licenseData.OrganizationId)
-						.Any())
-						errorIdResult.Data.Add("Нет организации с таким Id");
-
 					errorIdResult.Data
 						.AddRange(Validator
 						.IsValidData(licenseData.TarifId, "Не корректный Id тарифа"));
 
-					if (!context.Tarifs
-						.Where(t => t.Id == licenseData.TarifId)
-						.Any())
+					var neededOrganization = context.Organizations.Find(licenseData.OrganizationId);
+					var neededTarif = context.Tarifs.Find(licenseData.TarifId);
+
+					if (neededOrganization == null)
+						errorIdResult.Data.Add("Нет организации с таким Id");
+
+					if (neededTarif == null)
 						errorIdResult.Data.Add("Нет тарифа с таким Id");
 
 					var currentLicenseDateStart = new DateTime();
@@ -114,12 +113,6 @@ namespace LicenseServer.Domain.Methods
 						currentLicenseDateStart = daeteTime;
 					else
 						errorIdResult.Data.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
-
-					var neededOrganization = context.Organizations.Find(licenseData.OrganizationId);
-					var neededTarif = context.Tarifs.Find(licenseData.TarifId);
-
-					if (neededOrganization == null || neededTarif == null)
-						errorIdResult.Data.Add("В базе нет данных о организациях или тарифах");
 
 					if (errorIdResult.Data.Any())
 						return errorIdResult;

@@ -1,4 +1,5 @@
 ﻿using LicenseServer.Database;
+using LicenseServer.Database.Dependencies;
 using LicenseServer.Database.Entity;
 using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
@@ -17,19 +18,51 @@ namespace LicenseServer.Domain.Methods
 		private readonly CookieManager _cookieManager = cookieManager;
 
 		[HttpPost("register")]
-		public async Task<IHTTPResult> Register( UserAPI.UserRegistrationRequest user)
+		public async Task<IHTTPResult> Register(UserAPI.UserRegistrationRequest user)
 		{
 			try
 			{
 				using (var context = ApplicationContext.New)
 				{
+					var errorResult = new Fail();
+
+					var existUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
+					if (existUser != null)
+						errorResult.Data.Add("Логин занят");
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Name, "Укажите имя"));
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Surname, "Укажите фамилию"));
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Patronymic, "Укажите отчество"));
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Login, "Укажите логин"));
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Password, "Укажите пароль"));
+
+					if (!Enum.IsDefined(typeof(RoleType), user.Role))
+						errorResult.Data.Add("Не существующая роль");
+
+					if (errorResult.Data.Any())
+						return errorResult;
+
 					var currentUser = new UserEntity
 					{
 						Name = user.Name,
 						Surname = user.Surname,
 						Patronymic = user.Patronymic,
 						Login = user.Login,
-						Password = user.Password,
+						Password = Hasher.HashPassword(user.Password),
 						Role = user.Role,
 					};
 
@@ -52,20 +85,36 @@ namespace LicenseServer.Domain.Methods
 			{
 				using (var context = ApplicationContext.New)
 				{
+					var errorResult = new Fail();
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Login, "Укажите логин"));
+
+					errorResult.Data
+						.AddRange(Validator
+						.IsValidData(user.Password, "Укажите пароль"));
+
+					if (errorResult.Data.Any())
+						return errorResult;
+
 					var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
+
 					if (currentUser == null)
 						return new Fail { Data = { "Нет пользователя с таким логином" } };
-					if (currentUser.Password != user.Password)
+
+					if (!Hasher.VerifyPassword(currentUser.Password, user.Password))
 						return new Fail { Data = { "Не правильный пароль" } };
 
 					var token = GenerateToken(currentUser);
 					_cookieManager.SetAccessTokenCookie(token);
+
 					return new Success<string> { Data = token };
 				}
 			}
-			catch (Exception ex)
+			catch
 			{
-				return new Fail { Data = { ex.Message } };
+				return new Fail { Data = { "Произошла ошибка" } };
 			}
 		}
 
@@ -74,6 +123,7 @@ namespace LicenseServer.Domain.Methods
 			var claims = new[]
 			{
 				new Claim(JwtRegisteredClaimNames.Sub, user.Login),
+				new Claim(ClaimTypes.Role, user.Role.ToString()),
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 			};
 
@@ -89,22 +139,6 @@ namespace LicenseServer.Domain.Methods
 
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
-
-		/*private string HashPassword(string password)
-		{
-			// Реализуйте хэширование пароля
-			using (var hmac = new System.Security.Cryptography.HMACSHA512())
-			{
-				var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-				return Convert.ToBase64String(hash);
-			}
-		}
-
-		private bool VerifyPassword(string storedHash, string password)
-        {
-            var hash = HashPassword(password);
-            return storedHash == hash;
-        }*/
 	}
 
 

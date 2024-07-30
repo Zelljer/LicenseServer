@@ -24,6 +24,9 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var licenses = await _licensService.GetLicensesByOrg(orgId);
 				return Ok(licenses);
 			}
@@ -39,6 +42,9 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var licenses = await _licensService.GetLicensesByOrgWithProg(orgId, programId);
 				return Ok(licenses);
 			}
@@ -49,14 +55,17 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
+		[Authorize(Roles = "Admin, Manager")]
 		[HttpPost("create")] // 6. POST Метод добавления лицензии для организации
 		public async Task<ActionResult> CreateLicense(LicenseAPI.LicenseRequest licenseData)
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var createdLicense = await _licensService.CreateLicense(licenseData);
 				return CreatedAtAction(nameof(GetLicensesByOrg), createdLicense);
-
 			}
 			catch (Exception ex)
 			{
@@ -65,14 +74,17 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpDelete("delete")] // 7. POST Метод удаления лицензии для организации
 		public async Task<IActionResult> DeleteLicense(int id) 
 		{
 			try
 			{
+				if (!ModelState.IsValid)
+					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+
 				var deleteLicense = await _licensService.DeleteLicense(id);
 				return Ok(deleteLicense);
-
 			}
 			catch (Exception ex)
 			{

@@ -103,17 +103,17 @@ namespace LicenseServer.Domain.Methods
 					OrganizationEntity currentOrganization = new OrganizationEntity()
 					{
 						Inn = organization.Inn,
-						Kpp = organization.Inn.Length == 12 ? null : organization.Kpp,
+						Kpp = organization.Inn.Length == 12 ? "" : organization.Kpp,
 						Email = organization.Email,
 						Phone = organization.Phone
 					};
 					context.Organizations.Add(currentOrganization);
 					await context.SaveChangesAsync();
 
-					return new Success<OrganizationAPI.OrganizationRequest> { Data = organization };
+					return new Success<OrganizationEntity> { Data = currentOrganization };
 				}
 			}
-			catch
+			catch 
 			{
 				return new Fail { Data = { "Произошла ошибка" } };
 			}

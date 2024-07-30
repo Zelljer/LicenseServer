@@ -13,13 +13,6 @@
 				Secure = true, // Используйте true в продакшене
 				SameSite = SameSiteMode.None
 			});
-
-
-		}
-		public string GetAccessTokenCookie()
-		{
-			_httpContextAccessor.HttpContext.Request.Cookies.TryGetValue("access_token", out var token);
-			return token;
 		}
 	}
 }

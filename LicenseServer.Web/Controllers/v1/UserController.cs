@@ -1,6 +1,5 @@
 ﻿using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LicenseServer.Web.Controllers.v1
@@ -23,7 +22,6 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
 				var authorizatedUser = await _userService.Login(user);
-
 				return Ok(authorizatedUser); 
 			}
 			catch (Exception ex)
@@ -49,14 +47,13 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
-		[HttpGet("check-token")]
+		[HttpGet("check-token")] // POST Метод проверкитокена
 		public IActionResult CheckToken()
 		{
-			var token = Request.Cookies["access_token"];
+			var token = Request.Cookies["Authorization"];
+
 			if (string.IsNullOrEmpty(token))
-			{
 				return BadRequest(new { Status = "Fail", Message = "Токен не найден в куки." });
-			}
 
 			return Ok(new { Status = "Success", Token = token });
 		}

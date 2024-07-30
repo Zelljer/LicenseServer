@@ -10,8 +10,8 @@ namespace LicenseServer.Domain.Models
             public int Id { get; set; }
             [Required]
             public string Inn { get; set; }
-            public string? Kpp { get; set; }
-            [Required, DataType(DataType.EmailAddress)]
+            public string? Kpp { get; set; } 
+			[Required, DataType(DataType.EmailAddress)]
             public string Email { get; set; }
             [Required]
             public string Phone { get; set; }
