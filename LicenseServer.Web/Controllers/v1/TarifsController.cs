@@ -8,15 +8,10 @@ namespace LicenseServer.Controllers.v1
 	[ApiController]
 	[Route("api/[controller]")]
 	[Authorize]
-	public class TarifsController : ControllerBase
+	public class TarifsController(ILogger<TarifsController> logger) : ControllerBase
 	{
-		private readonly TarifService _tarifService;
-		private readonly ILogger<TarifsController> _logger;
-		public TarifsController(ILogger<TarifsController> logger)
-		{
-			_tarifService = new TarifService();
-			_logger = logger;
-		}
+		private readonly TarifService _tarifService = new TarifService();
+		private readonly ILogger<TarifsController> _logger = logger;
 
 		[Authorize(Roles = "Admin, Manager")]
 		[HttpPost("create")] // 0. POST Метод создания тарифа

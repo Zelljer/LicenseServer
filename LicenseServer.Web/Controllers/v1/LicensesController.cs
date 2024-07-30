@@ -9,15 +9,10 @@ namespace LicenseServer.Web.Controllers.v1
 	[ApiController]
 	[Route("api/[controller]")]
 	[Authorize]
-	public class LicensesController : ControllerBase
+	public class LicensesController(ILogger<LicensesController> logger) : ControllerBase
 	{
-		private readonly LicensService _licensService;
-		private readonly ILogger<LicensesController> _logger;
-		public LicensesController(ILogger<LicensesController> logger)
-		{
-			_licensService = new LicensService();
-			_logger = logger;
-		}
+		private readonly LicensService _licensService = new LicensService();
+		private readonly ILogger<LicensesController> _logger = logger;
 
 		[HttpGet("licensesOrg")] // 3. GET Метод получения активных лицензий по id организации 
 		public async Task<ActionResult> GetLicensesByOrg(int orgId) 

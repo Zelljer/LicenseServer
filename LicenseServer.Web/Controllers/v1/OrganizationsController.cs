@@ -8,16 +8,10 @@ namespace LicenseServer.Web.Controllers.v1
 	[ApiController]
 	[Route("api/[controller]")]
 	[Authorize]
-	public class OrganizationsController : ControllerBase
+	public class OrganizationsController(ILogger<OrganizationsController> logger) : ControllerBase
 	{
-		private readonly OrganizationService _organizationService;
-		private readonly ILogger<OrganizationsController> _logger;
-
-		public OrganizationsController(ILogger<OrganizationsController> logger)
-		{
-			_organizationService = new OrganizationService();
-			_logger = logger;
-		}
+		private readonly OrganizationService _organizationService = new OrganizationService();
+		private readonly ILogger<OrganizationsController> _logger = logger;
 
 		[HttpGet("organizations")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
 		public async Task<ActionResult> GetOrganizations(int page, int pageSize)

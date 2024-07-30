@@ -45,14 +45,19 @@ namespace LicenseServer.Domain.Utils
 				return errors;
 			}
 
-			if (!Regex.IsMatch(phone, @"^[\+\d\s\-\(\)]+$"))
+			if (!Regex.IsMatch(phone, @"^[+]?\d+$"))
 				errors.Add("В номере телефона не должны присутствовать буквы и другие символы");
 
-			if (!Regex.IsMatch(phone, @"^(\+7|7|8)"))
+			if (!Regex.IsMatch(phone, @"^(\+7|7|8)\d*$"))
 				errors.Add("Номер должен начинаться на +7, 7 или 8");
 
-			if (!Regex.IsMatch(phone, @"^\+?\d{1,2}\s*\(?\d{3}\)?\s*\d{3}[-]?\d{2}[-]?\d{2}$"))
-				errors.Add("В номере телефона недопустмое количество цифр");
+			// Проверка на длину номера телефона
+			int phoneLength = phone.Length;
+			int minLength = phone.StartsWith("+") ? 12 : 11; 
+			int maxLength = phone.StartsWith("+") ? 13 : 11; 
+
+			if (phoneLength < minLength || phoneLength > maxLength)
+				errors.Add($"Номер телефона должен содержать 11 цифр");
 
 			return errors;
 		}
