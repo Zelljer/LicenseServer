@@ -8,8 +8,8 @@ namespace LicenseServer.Domain.Utils
 {
 	public static class TokenManager
 	{
-		public static string Key { get; set; } = "5674585686575768456769735897364579869805675896705986725-467859206798576";
-		public static string Issuer { get; set; } = "issuer";
+		public static string Key => "5674585686575768456769735897364579869805675896705986725-467859206798576";
+		public static string Issuer => "issuer";
 
 		public static string GenerateToken(UserEntity user)
 		{

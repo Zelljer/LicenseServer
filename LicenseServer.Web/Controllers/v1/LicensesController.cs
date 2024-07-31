@@ -15,7 +15,7 @@ namespace LicenseServer.Web.Controllers.v1
 		private readonly ILogger<LicensesController> _logger = logger;
 
 		[HttpGet("licensesOrg")] // 3. GET Метод получения активных лицензий по id организации 
-		public async Task<ActionResult> GetLicensesByOrg(int orgId) 
+		public async Task<ActionResult> GetLicensesByOrg(int orgId)
 		{
 			try
 			{
@@ -33,7 +33,7 @@ namespace LicenseServer.Web.Controllers.v1
 		}
 
 		[HttpGet("licensesOrgProg")] // 4. GET Метод получения активных лицензий по id организации по конкретной программе
-		public async Task<ActionResult> GetLicensesByOrgWithProg(int orgId, ProgramType programId )
+		public async Task<ActionResult> GetLicensesByOrgWithProg(int orgId, ProgramType programId)
 		{
 			try
 			{
@@ -50,7 +50,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
-		[Authorize(Roles = "Admin, Manager")]
+		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Admin)}")]
 		[HttpPost("create")] // 6. POST Метод добавления лицензии для организации
 		public async Task<ActionResult> CreateLicense(LicenseAPI.LicenseRequest licenseData)
 		{
@@ -69,9 +69,9 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = nameof(RoleType.Admin))]
 		[HttpDelete("delete")] // 7. POST Метод удаления лицензии для организации
-		public async Task<IActionResult> DeleteLicenseById(int id) 
+		public async Task<IActionResult> DeleteLicense(int id) 
 		{
 			try
 			{

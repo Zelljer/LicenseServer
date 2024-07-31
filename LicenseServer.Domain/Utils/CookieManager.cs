@@ -6,7 +6,7 @@
 
 		public void SetAccessTokenCookie(string token)
 		{
-			_httpContextAccessor.HttpContext.Response.Cookies.Append("Authorization", token, new CookieOptions
+			_httpContextAccessor.HttpContext.Response.Cookies.Append(Constans.HeaderAuthorize, token, new CookieOptions
 			{
 				HttpOnly = true,
 				Expires = DateTimeOffset.UtcNow.AddHours(12),

@@ -37,7 +37,7 @@ builder.Services.AddAuthentication(options =>
 	{
 		OnMessageReceived = context =>
 		{
-			context.Token = context.Request.Cookies["Authorization"];
+			context.Token = context.Request.Cookies[Constans.HeaderAuthorize];
 			return Task.CompletedTask;
 		}
 	};
@@ -60,7 +60,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {

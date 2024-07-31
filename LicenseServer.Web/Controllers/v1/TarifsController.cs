@@ -1,4 +1,5 @@
-﻿using LicenseServer.Domain.Methods;
+﻿using LicenseServer.Database.Dependencies;
+using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace LicenseServer.Controllers.v1
 		private readonly TarifService _tarifService = new TarifService();
 		private readonly ILogger<TarifsController> _logger = logger;
 
-		[Authorize(Roles = "Admin, Manager")]
+		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Admin)}")]
 		[HttpPost("create")] // 0. POST Метод создания тарифа
 		public async Task<ActionResult> CreateTarif(TarifAPI.TarifRequest tarif)
 		{

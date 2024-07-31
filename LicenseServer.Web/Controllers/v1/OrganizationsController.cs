@@ -1,4 +1,5 @@
-﻿using LicenseServer.Domain.Methods;
+﻿using LicenseServer.Database.Dependencies;
+using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
-		[Authorize(Roles = "Admin, Manager")]
+		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Admin)}")]
 		[HttpPost("create")] // 8. POST Метод добавления организации
 		public async Task<ActionResult> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{
