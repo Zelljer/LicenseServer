@@ -32,7 +32,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 		}
 
-		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Admin)}")]
+		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Manager)}")]
 		[HttpPost("create")] // 8. POST Метод добавления организации
 		public async Task<ActionResult> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{

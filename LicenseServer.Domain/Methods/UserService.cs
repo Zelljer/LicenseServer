@@ -67,7 +67,7 @@ namespace LicenseServer.Domain.Methods
 			}
 		}
 
-		public async Task<IHTTPResult> Login(UserAPI.UserAuthentificationRequest user)
+		public async Task<IHTTPResult> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
 			{

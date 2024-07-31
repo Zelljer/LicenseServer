@@ -17,11 +17,11 @@ namespace LicenseServer.Web.Controllers.v1
 		}
 
 		[HttpPost("authorization")] // POST Метод авторизация 
-		public async Task<ActionResult> Login(UserAPI.UserAuthentificationRequest user)
+		public async Task<ActionResult> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
 			{
-				var authorizatedUser = await _userService.Login(user);
+				var authorizatedUser = await _userService.UserLogin(user);
 				return Ok(authorizatedUser); 
 			}
 			catch (Exception ex)
@@ -32,7 +32,7 @@ namespace LicenseServer.Web.Controllers.v1
 		}
 
 		[HttpPost("registration")] // POST Метод регистрации
-		public async Task<ActionResult> Register(UserAPI.UserRegistrationRequest user)
+		public async Task<ActionResult> UserRegistration(UserAPI.UserRegistrationRequest user)
 		{
 			try
 			{

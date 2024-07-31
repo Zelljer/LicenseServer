@@ -14,7 +14,7 @@ namespace LicenseServer.Controllers.v1
 		private readonly TarifService _tarifService = new TarifService();
 		private readonly ILogger<TarifsController> _logger = logger;
 
-		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Admin)}")]
+		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Manager)}")]
 		[HttpPost("create")] // 0. POST Метод создания тарифа
 		public async Task<ActionResult> CreateTarif(TarifAPI.TarifRequest tarif)
 		{
