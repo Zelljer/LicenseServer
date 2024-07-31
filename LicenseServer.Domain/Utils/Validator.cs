@@ -8,7 +8,13 @@ namespace LicenseServer.Domain.Utils
 		{
 			List<string> errors = [];
 
-			if (data is string && (data.Equals("") || data == null))
+			if (data == null)
+			{
+				errors.Add(errorText);
+				return errors;
+			}
+
+			if (data is string && data.Equals(""))
 				errors.Add(errorText);
 
 			if (data is int && int.TryParse(data.ToString(), out int convertedValue))
@@ -51,7 +57,6 @@ namespace LicenseServer.Domain.Utils
 			if (!Regex.IsMatch(phone, @"^(\+7|7|8)\d*$"))
 				errors.Add("Номер должен начинаться на +7, 7 или 8");
 
-			// Проверка на длину номера телефона
 			int phoneLength = phone.Length;
 			int minLength = phone.StartsWith("+") ? 12 : 11; 
 			int maxLength = phone.StartsWith("+") ? 13 : 11; 

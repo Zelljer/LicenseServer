@@ -1,6 +1,4 @@
 ﻿using LicenseServer.Database.Dependencies;
-using LicenseServer.Database.Entity;
-using Microsoft.AspNetCore.Identity;
 
 namespace LicenseServer.Domain.Models
 {

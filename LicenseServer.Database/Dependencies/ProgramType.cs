@@ -2,8 +2,8 @@
 {
     public enum ProgramType
     {
-        ProgramA,
-        ProgramB,
-        ProgramC
+        TriarRetail,
+        Triarcashbox,
+        TobaccoAligment
     }
 }

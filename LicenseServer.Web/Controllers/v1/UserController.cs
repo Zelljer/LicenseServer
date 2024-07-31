@@ -36,7 +36,7 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				var registeredUser = await _userService.Register(user);
+				var registeredUser = await _userService.UserRegistration(user);
 				return Ok(registeredUser);
 
 			}

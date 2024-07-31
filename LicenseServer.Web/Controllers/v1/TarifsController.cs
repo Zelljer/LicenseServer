@@ -23,7 +23,7 @@ namespace LicenseServer.Controllers.v1
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
 				var createdTarif = await _tarifService.CreateTarif(tarif);
-				return CreatedAtAction(nameof(GetTarifs), createdTarif);
+				return CreatedAtAction(nameof(GetAllTarifs), createdTarif);
 			}
 			catch (Exception ex)
 			{
@@ -33,11 +33,11 @@ namespace LicenseServer.Controllers.v1
 		}
 
 		[HttpGet("tarifs")] // 1. GET Метод получения списка информации о тарифах, которые продает ГК ТриАр (вовзращать список)
-		public async Task<ActionResult> GetTarifs()
+		public async Task<ActionResult> GetAllTarifs()
 		{
 			try
 			{
-				var tarifs = await _tarifService.GetTarifs();
+				var tarifs = await _tarifService.GetAllTarifs();
 				return Ok(tarifs);
 			}
 			catch (Exception ex)
@@ -48,14 +48,14 @@ namespace LicenseServer.Controllers.v1
 		}
 
 		[HttpGet("tarifsId")] // 2. GET Метод получения списка информации 1 тарифе, которую продает ГК ТриАр (возвращать 1 запись по id )
-		public async Task<ActionResult> GetTariffById(int id)
+		public async Task<ActionResult> GetTariffById(int tarifId)
 		{
 			try
 			{
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
-				var tarifs = await _tarifService.GetTariffById(id);
+				var tarifs = await _tarifService.GetTariffById(tarifId);
 				return Ok(tarifs);
 			}
 			catch (Exception ex)

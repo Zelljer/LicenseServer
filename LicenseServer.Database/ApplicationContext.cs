@@ -7,6 +7,8 @@ namespace LicenseServer.Database
 	{
 		public ApplicationContext() {}
 
+		public static ApplicationContext New => new();
+
 		public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -18,8 +20,5 @@ namespace LicenseServer.Database
         public DbSet<LicenseEntity> Licenses { get; set; }
         public DbSet<OrganizationEntity> Organizations { get; set; }
 		public DbSet<UserEntity> Users { get; set; }
-
-		public static ApplicationContext New => new();
-
     }
 }

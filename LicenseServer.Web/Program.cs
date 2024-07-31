@@ -1,12 +1,8 @@
 using LicenseServer.Domain.Methods;
-using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +14,6 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<LicensService>();
 builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddScoped<TarifService>();
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -33,9 +28,9 @@ builder.Services.AddAuthentication(options =>
 		ValidateAudience = true,
 		ValidateLifetime = true,
 		ValidateIssuerSigningKey = true,
-		ValidIssuer = builder.Configuration["Jwt:Issuer"],
-		ValidAudience = builder.Configuration["Jwt:Issuer"],
-		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+		ValidIssuer = TokenManager.Issuer,
+		ValidAudience = TokenManager.Issuer,
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenManager.Key))
 	};
 
 	options.Events = new JwtBearerEvents

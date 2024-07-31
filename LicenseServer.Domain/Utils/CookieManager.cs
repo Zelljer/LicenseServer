@@ -10,7 +10,7 @@
 			{
 				HttpOnly = true,
 				Expires = DateTimeOffset.UtcNow.AddHours(12),
-				Secure = true, // Используйте true в продакшене
+				Secure = true,
 				SameSite = SameSiteMode.None
 			});
 		}

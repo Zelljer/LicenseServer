@@ -14,14 +14,14 @@ namespace LicenseServer.Web.Controllers.v1
 		private readonly ILogger<OrganizationsController> _logger = logger;
 
 		[HttpGet("organizations")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
-		public async Task<ActionResult> GetOrganizations(int page, int pageSize)
+		public async Task<ActionResult> GetOrganizationsByPages(int page, int pageSize)
 		{
 			try
 			{
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
-				var licenses = await _organizationService.GetOrganizations(page, pageSize);
+				var licenses = await _organizationService.GetOrganizationsByPages(page, pageSize);
 				return Ok(licenses);
 			}
 			catch (Exception ex)
@@ -41,7 +41,7 @@ namespace LicenseServer.Web.Controllers.v1
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
 				var createdOrganization = await _organizationService.CreateOrganization(organization);
-				return CreatedAtAction(nameof(GetOrganizations), createdOrganization);
+				return CreatedAtAction(nameof(GetOrganizationsByPages), createdOrganization);
 			}
 			catch (Exception ex)
 			{

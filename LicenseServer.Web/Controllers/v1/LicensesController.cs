@@ -22,7 +22,7 @@ namespace LicenseServer.Web.Controllers.v1
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
-				var licenses = await _licensService.GetLicensesByOrg(orgId);
+				var licenses = await _licensService.GetLicensesByOrgId(orgId);
 				return Ok(licenses);
 			}
 			catch (Exception ex)
@@ -40,7 +40,7 @@ namespace LicenseServer.Web.Controllers.v1
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
-				var licenses = await _licensService.GetLicensesByOrgWithProg(orgId, programId);
+				var licenses = await _licensService.GetLicensesByOrgIdWithProgId(orgId, programId);
 				return Ok(licenses);
 			}
 			catch (Exception ex)
@@ -71,14 +71,14 @@ namespace LicenseServer.Web.Controllers.v1
 
 		[Authorize(Roles = "Admin")]
 		[HttpDelete("delete")] // 7. POST Метод удаления лицензии для организации
-		public async Task<IActionResult> DeleteLicense(int id) 
+		public async Task<IActionResult> DeleteLicenseById(int id) 
 		{
 			try
 			{
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
-				var deleteLicense = await _licensService.DeleteLicense(id);
+				var deleteLicense = await _licensService.DeleteLicenseById(id);
 				return Ok(deleteLicense);
 			}
 			catch (Exception ex)
