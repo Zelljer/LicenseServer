@@ -15,7 +15,7 @@ namespace LicenseServer.Domain.Models
         }
         public class OrganizationRequest
         {
-            public required string Inn { get; set; }
+            public string Inn { get; set; }
             public string? Kpp { get; set; }
             [DataType(DataType.EmailAddress)]
             public string Email { get; set; }

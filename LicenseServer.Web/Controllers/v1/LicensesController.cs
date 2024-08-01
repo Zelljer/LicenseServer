@@ -71,14 +71,14 @@ namespace LicenseServer.Web.Controllers.v1
 
 		[Authorize(Roles = nameof(RoleType.Admin))]
 		[HttpDelete("delete")] // 7. POST Метод удаления лицензии для организации
-		public async Task<IActionResult> DeleteLicense(int id) 
+		public async Task<IActionResult> DeleteLicense(int licenseId) 
 		{
 			try
 			{
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
 
-				var deleteLicense = await _licensService.DeleteLicenseById(id);
+				var deleteLicense = await _licensService.DeleteLicenseById(licenseId);
 				return Ok(deleteLicense);
 			}
 			catch (Exception ex)
