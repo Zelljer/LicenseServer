@@ -41,7 +41,7 @@ namespace LicenseServer.Domain.Methods
 				context.Tarifs.Add(currentTarif);
 				await context.SaveChangesAsync();
 
-				return new Success<TarifAPI.TarifRequest> { Data = tarif };
+				return new Success<string> { Data = "Тариф создан успешно" };
 			}
 			catch
 			{

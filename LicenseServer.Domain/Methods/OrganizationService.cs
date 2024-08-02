@@ -108,8 +108,8 @@ namespace LicenseServer.Domain.Methods
 				context.Organizations.Add(currentOrganization);
 				await context.SaveChangesAsync();
 
-				return new Success<OrganizationEntity> { Data = currentOrganization };
-			}
+                return new Success<string> { Data = "Организация создана успешно" };
+            }
 			catch 
 			{
 				return new Fail { Data = { "Произошла ошибка" } };

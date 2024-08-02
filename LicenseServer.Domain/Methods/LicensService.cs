@@ -122,8 +122,8 @@ namespace LicenseServer.Domain.Methods
 				context.Licenses.Add(currentLicense);
 				await context.SaveChangesAsync();
 
-				return new Success<LicenseAPI.LicenseRequest> { Data = licenseData };
-			}
+                return new Success<string> { Data = "Лицензия создана успешно" };
+            }
 			catch
 			{
 				return new Fail { Data = { "Произошла ошибка" } };

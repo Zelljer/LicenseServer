@@ -16,7 +16,11 @@ namespace LicenseServer.Domain.Methods
 				using var context = ApplicationContext.New;
 				var errorResult = new Fail();
 
-				var existUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
+				var ttt = context.Users.ToList();
+                var existUser1 = context.Users.FirstOrDefault(u => u.Login == user.Login);
+
+
+                var existUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
 				if (existUser != null)
 					errorResult.Data.Add("Логин занят");
 
@@ -59,11 +63,11 @@ namespace LicenseServer.Domain.Methods
 				context.Users.Add(currentUser);
 				await context.SaveChangesAsync();
 
-				return new Success<UserEntity> { Data = currentUser };
+				return new Success<string> { Data = "Success Registration" };
 			}
-			catch
+			catch (Exception ex) 
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
+				return new Fail { Data = { ex.Message } };
 			}
 		}
 
