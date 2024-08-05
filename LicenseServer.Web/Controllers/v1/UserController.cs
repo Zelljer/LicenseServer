@@ -17,7 +17,7 @@ namespace LicenseServer.Web.Controllers.v1
 		}
 
 		[HttpPost("authorization")] // POST Метод авторизация 
-		public async Task<ActionResult<IHTTPResult>> UserLogin(UserAPI.UserAuthentificationRequest user)
+		public async Task<ActionResult> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
 			{

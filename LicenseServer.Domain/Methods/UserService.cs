@@ -9,48 +9,47 @@ namespace LicenseServer.Domain.Methods
 {
 	public class UserService(CookieManager cookieManager)
 	{
-		public async Task<IHTTPResult> UserRegistration(UserAPI.UserRegistrationRequest user)
+		public async Task<TestResult<string>> UserRegistration(UserAPI.UserRegistrationRequest user)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorResult = new Fail();
+				var errorResult = new List<string>();
 
 				var ttt = context.Users.ToList();
                 var existUser1 = context.Users.FirstOrDefault(u => u.Login == user.Login);
 
-
                 var existUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
 				if (existUser != null)
-					errorResult.Data.Add("Логин занят");
+					errorResult.Add("Логин занят");
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(user.Name, "Укажите имя"));
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(user.Surname, "Укажите фамилию"));
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(user.Patronymic, "Укажите отчество"));
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(user.Login, "Укажите логин"));
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(user.Password, "Укажите пароль"));
 
 				if (!Enum.IsDefined(typeof(RoleType), user.Role))
-					errorResult.Data.Add("Не существующая роль");
+					errorResult.Add("Не существующая роль");
 
-				if (errorResult.Data.Any())
-					return errorResult;
+				if (errorResult.Any())
+                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
 
-				var currentUser = new UserEntity
+                var currentUser = new UserEntity
 				{
 					Name = user.Name,
 					Surname = user.Surname,
@@ -63,49 +62,49 @@ namespace LicenseServer.Domain.Methods
 				context.Users.Add(currentUser);
 				await context.SaveChangesAsync();
 
-				return new Success<string> { Data = "Success Registration" };
+                return new TestResult<string> { IsSuccsess = true, Data = "Пользователь зарегистрирован успешно" }; 
 			}
-			catch (Exception ex) 
+			catch 
 			{
-				return new Fail { Data = { ex.Message } };
-			}
+                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> UserLogin(UserAPI.UserAuthentificationRequest user)
+		public async Task<TestResult<string>> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorResult = new Fail();
+				var errorResult = new List<string>();
 
-				errorResult.Data
+                errorResult
 					.AddRange(Validator
 					.IsValidData(user.Login, "Укажите логин"));
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(user.Password, "Укажите пароль"));
 
-				if (errorResult.Data.Any())
-					return errorResult;
+				if (errorResult.Any())
+                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
 
-				var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
+                var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
 
 				if (currentUser == null)
-					return new Fail { Data = { "Нет пользователя с таким логином" } };
+                    return new TestResult<string> { Errors = new() { "Нет пользователя с таким логином" }, IsSuccsess=false };
 
 				if (!Hasher.VerifyPassword(currentUser.Password, user.Password))
-					return new Fail { Data = { "Не правильный пароль" } };
+                    return new TestResult<string> { Errors = new() { "Не правильный пароль" }, IsSuccsess = false };  
 
 				var token = TokenManager.GenerateToken(currentUser);
 				cookieManager.SetAccessTokenCookie(token);
 
-				return new Success<string> { Data = token };
-			}
+                return new TestResult<string> { IsSuccsess = true, Data = token };
+            }
 			catch
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 	}
 }

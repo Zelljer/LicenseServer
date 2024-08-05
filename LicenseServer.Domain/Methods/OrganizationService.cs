@@ -10,33 +10,33 @@ namespace LicenseServer.Domain.Methods
 	public class OrganizationService
 	{
 
-		public async Task<IHTTPResult> GetOrganizationsByPages(int page, int pageSize)
+		public async Task<TestResult<PagedResult<OrganizationsLiceses>>> GetOrganizationsByPages(int page, int pageSize)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorResult = new Fail();
+                var errorResult = new List<string>();
 
-				errorResult.Data
+                errorResult
 					.AddRange(Validator
 					.IsValidData(page, "Укажите нужный номер страницы. Отсчет страниц начинается с 1")
 					);
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)")
 					);
 
-				if (errorResult.Data.Any())
-					return errorResult;
+				if (errorResult.Any())
+					 return new TestResult<PagedResult<OrganizationsLiceses>> { Errors = errorResult, IsSuccsess = false };
 
-				var organizations = await context.Organizations
+                var organizations = await context.Organizations
 					.Skip((page - 1) * pageSize)
 					.Take(pageSize)
 					.ToListAsync();
 
 				if (!organizations.Any())
-					return new Success<PagedResult<OrganizationsLiceses>> { Data = new PagedResult<OrganizationsLiceses>() };
+                    return new TestResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true, Data = new PagedResult<OrganizationsLiceses>()};
 
 				var licenses = await context.Licenses
 					.Include(l => l.Organization)
@@ -66,39 +66,39 @@ namespace LicenseServer.Domain.Methods
 					CurrentPage = page
 				};
 
-				return new Success<PagedResult<OrganizationsLiceses>> { Data = currentPage };
+                return new TestResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true, Data = currentPage };
 			}
 			catch
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<PagedResult<OrganizationsLiceses>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
+		public async Task<TestResult<string>> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorResult = new Fail();
+                var errorResult = new List<string>();
 
-				if (!Validations.IsValidInn(organization.Inn))
-					errorResult.Data.Add("Не корректный ИНН");
+                if (!Validations.IsValidInn(organization.Inn))
+					errorResult.Add("Не корректный ИНН");
 
 				if (organization.Inn.Length != 12 && !Validations.IsValidKpp(organization.Kpp))
-					errorResult.Data.Add("Не корректный КПП");
+					errorResult.Add("Не корректный КПП");
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidEmail(organization.Email));
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidPhone(organization.Phone));
 
-				if (errorResult.Data.Any())
-					return errorResult;
+				if (errorResult.Any())
+                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
 
-				OrganizationEntity currentOrganization = new()
+                OrganizationEntity currentOrganization = new()
 				{
 					Inn = organization.Inn,
 					Kpp = organization.Inn.Length == 12 ? "" : organization.Kpp,
@@ -108,12 +108,12 @@ namespace LicenseServer.Domain.Methods
 				context.Organizations.Add(currentOrganization);
 				await context.SaveChangesAsync();
 
-                return new Success<string> { Data = "Организация создана успешно" };
+                return new TestResult<string> { Data = "Организация создана успешно", IsSuccsess = true };
             }
 			catch 
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		} 
 	}
 }

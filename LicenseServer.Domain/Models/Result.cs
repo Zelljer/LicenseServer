@@ -1,20 +1,15 @@
-﻿namespace LicenseServer.Domain.Models
+﻿using Newtonsoft.Json;
+
+namespace LicenseServer.Domain.Models
 {
-    public interface IHTTPResult 
+    public class TestResult<T>
 	{
-		string Status { get; }
-	}
+        [JsonProperty("isSuccsess")]
+        public bool IsSuccsess { get; set; }
+        [JsonProperty("data")]
+        public T Data { get; set; }
 
-	public class Fail(): IHTTPResult
-	{
-		public string Status => "Fail";
-		public List<string> Data { get; set; } = [];
-	}
-
-	public class Success<T>() : IHTTPResult
-	{
-		public string Status => "Success";
-		public T Data { get; set; }
-
+        [JsonProperty("errors")]
+        public List<string> Errors { get; set; }
 	}
 }

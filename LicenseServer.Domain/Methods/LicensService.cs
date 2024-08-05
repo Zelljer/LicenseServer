@@ -4,19 +4,20 @@ using LicenseServer.Database.Entity;
 using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Globalization;
 
 namespace LicenseServer.Domain.Methods
 {
 	public class LicensService
 	{
-		public async Task<IHTTPResult> GetLicensesByOrgId(int orgId)
+		public async Task<TestResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgId(int orgId)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
 				if (orgId <= 0)
-					return new Fail { Data = { "Не корректный Id организации" } };
+                    return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Не корректный Id организации" }, IsSuccsess = false };
 
 				var licenses = await context.Licenses
 					.Where(l => l.Organization.Id == orgId && l.EndDate > DateTime.Now)
@@ -30,31 +31,31 @@ namespace LicenseServer.Domain.Methods
 						EndDate = t.EndDate,
 					}).ToListAsync();
 
-				return new Success<List<LicenseAPI.LicenseResponse>> { Data = licenses };
+                return new TestResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses };
 			}
 			catch
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> GetLicensesByOrgIdWithProgId(int orgId, ProgramType programId) 
+		public async Task<TestResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgIdWithProgId(int orgId, ProgramType programId) 
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorResult = new Fail();
+				var errorResult = new List<string>();
 
-				errorResult.Data.AddRange(Validator.IsValidData(orgId, "Не корректный Id организации"));
+				errorResult.AddRange(Validator.IsValidData(orgId, "Не корректный Id организации"));
 
 				if (context.Organizations.Find(orgId) == null)
-					errorResult.Data.Add("Нет организации с таким Id");
+					errorResult.Add("Нет организации с таким Id");
 
 				if (!Enum.IsDefined(typeof(ProgramType), programId))
-					errorResult.Data.Add("Указана не существующая программа");
+					errorResult.Add("Указана не существующая программа");
 
-				if (errorResult.Data.Any())
-					return errorResult;
+				if (errorResult.Any())
+					return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = errorResult, IsSuccsess = false };
 
 				var licenses = await context.Licenses
 					.Include(l => l.Organization)
@@ -70,26 +71,26 @@ namespace LicenseServer.Domain.Methods
 						EndDate = t.EndDate,
 					}).ToListAsync();
 
-				return new Success<List<LicenseAPI.LicenseResponse>> { Data = licenses };
+                return new TestResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses }; 
 			}
 			catch
 			{
-				return new Fail{ Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> CreateLicense(LicenseAPI.LicenseRequest licenseData)
+		public async Task<TestResult<string>> CreateLicense(LicenseAPI.LicenseRequest licenseData)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorIdResult = new Fail();
+				var errorResult = new List<string>();
 
-				errorIdResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(licenseData.OrganizationId, "Не корректный Id организации"));
 
-				errorIdResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(licenseData.TarifId, "Не корректный Id тарифа"));
 
@@ -97,21 +98,21 @@ namespace LicenseServer.Domain.Methods
 				var neededTarif = context.Tarifs.Find(licenseData.TarifId);
 
 				if (neededOrganization == null)
-					errorIdResult.Data.Add("Нет организации с таким Id");
+					errorResult.Add("Нет организации с таким Id");
 
 				if (neededTarif == null)
-					errorIdResult.Data.Add("Нет тарифа с таким Id");
+					errorResult.Add("Нет тарифа с таким Id");
 
 				var currentLicenseDateStart = new DateTime();
 				if (DateTime.TryParseExact(licenseData.DateStart, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
 					currentLicenseDateStart = daeteTime;
 				else
-					errorIdResult.Data.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
+					errorResult.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
 
-				if (errorIdResult.Data.Any())
-					return errorIdResult;
+				if (errorResult.Any())
+                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
 
-				var currentLicense = new LicenseEntity
+                var currentLicense = new LicenseEntity
 				{
 					Organization = neededOrganization,
 					Tarif = neededTarif,
@@ -122,36 +123,37 @@ namespace LicenseServer.Domain.Methods
 				context.Licenses.Add(currentLicense);
 				await context.SaveChangesAsync();
 
-                return new Success<string> { Data = "Лицензия создана успешно" };
+                return new TestResult<string> { IsSuccsess = true, Data = "Лицензия создана успешно" };
             }
 			catch
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> DeleteLicenseById(int licenseId)
+		public async Task<TestResult<string>> DeleteLicenseById(int licenseId)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
 				if (licenseId <= 0)
-					return new Fail { Data = { "Не корректный Id лицензии" } };
+					return new TestResult<string> { Errors = new() { "Не корректный Id лицензии" }, IsSuccsess = false };
 
-				var license = await context.Licenses.FindAsync(licenseId);
+                var license = await context.Licenses.FindAsync(licenseId);
 
 				if (license == null)
-					return new Fail { Data = { "Указана не существующая лицензия" } };
+                    return new TestResult<string> { Errors = new() { "Указана не существующая лицензия" }, IsSuccsess = false };
 
 				context.Licenses.Remove(license);
 				await context.SaveChangesAsync();
 
-				return new Success<string> { Data = "Данные удалены" };
+                return new TestResult<string> { IsSuccsess = true, Data = "Данные удалены" };
 			}
 			catch 
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
+        
 		}
 	}
 }

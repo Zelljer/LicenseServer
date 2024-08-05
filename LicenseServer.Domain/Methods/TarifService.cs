@@ -10,27 +10,27 @@ namespace LicenseServer.Domain.Methods
 	public class TarifService
 	{
 
-		public async Task<IHTTPResult> CreateTarif(TarifAPI.TarifRequest tarif)
+		public async Task<TestResult<string>> CreateTarif(TarifAPI.TarifRequest tarif)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
-				var errorResult = new Fail();
+				var errorResult = new List<string>();
 
 				if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
-					errorResult.Data.Add("Не существующая прогрмма");
+					errorResult.Add("Не существующая прогрмма");
 
 				if (tarif.Price < 0)
-					errorResult.Data.Add("Не корректная цена");
+					errorResult.Add("Не корректная цена");
 
-				errorResult.Data
+				errorResult
 					.AddRange(Validator
 					.IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
 
-				if (errorResult.Data.Any())
-					return errorResult;
+				if (errorResult.Any())
+                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
 
-				TarifEntity currentTarif = new TarifEntity()
+                TarifEntity currentTarif = new TarifEntity()
 				{
 					Name = tarif.Name,
 					Program = tarif.Program,
@@ -41,15 +41,15 @@ namespace LicenseServer.Domain.Methods
 				context.Tarifs.Add(currentTarif);
 				await context.SaveChangesAsync();
 
-				return new Success<string> { Data = "Тариф создан успешно" };
+                return new TestResult<string> { IsSuccsess = true, Data = "Тариф создан успешно" }; 
 			}
 			catch
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> GetAllTarifs()
+		public async Task<TestResult<List<TarifAPI.TarifResponse>>> GetAllTarifs()
 		{
 			try
 			{
@@ -64,29 +64,29 @@ namespace LicenseServer.Domain.Methods
 
 				}).ToListAsync();
 
-				return new Success<List<TarifAPI.TarifResponse>> { Data = tarif };
-			}
+                return new TestResult<List<TarifAPI.TarifResponse>> { IsSuccsess = true, Data = tarif };
+            }
 			catch 
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<List<TarifAPI.TarifResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
 		}
 
-		public async Task<IHTTPResult> GetTariffById(int tarifId)
-		{
+		public async Task<TestResult<TarifAPI.TarifResponse>> GetTariffById(int tarifId)
+		 {
 			try
 			{
 				using (var context = ApplicationContext.New)
 				{
 					if (tarifId <= 0)
-						return new Fail { Data = { "Не существует тарифа с таким Id" } };
+						return new TestResult<TarifAPI.TarifResponse> { Errors = new() { "Не существует тарифа с таким Id" }, IsSuccsess=false };
 
 					var tarif = await context.Tarifs.FindAsync(tarifId);
 
 					if (tarif == null)
-						return new Success<TarifAPI.TarifResponse> { };
+                        return new TestResult<TarifAPI.TarifResponse> { IsSuccsess = true, Data = new TarifAPI.TarifResponse()};
 
-					var currentTarif = new TarifAPI.TarifResponse()
+                    var currentTarif = new TarifAPI.TarifResponse()
 					{
 						Id = tarif.Id,
 						Name = tarif.Name,
@@ -95,13 +95,13 @@ namespace LicenseServer.Domain.Methods
 						DaysCount = tarif.DaysCount
 					};
 
-					return new Success<TarifAPI.TarifResponse> { Data = currentTarif };
+					return new TestResult<TarifAPI.TarifResponse> { IsSuccsess = true, Data = currentTarif };
 				}
 			}
 			catch
 			{
-				return new Fail { Data = { "Произошла ошибка" } };
-			}
+                return new TestResult<TarifAPI.TarifResponse> { Errors = new() { "Ошибка" }, IsSuccsess = false};
+            }
 		}
 	}
 }

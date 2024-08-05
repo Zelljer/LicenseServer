@@ -55,7 +55,7 @@ namespace LicenseServer.Controllers.v1
 			{
 				if (!ModelState.IsValid)
 					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
-
+			
 				var tarifs = await _tarifService.GetTariffById(tarifId);
 				return Ok(tarifs);
 			}
