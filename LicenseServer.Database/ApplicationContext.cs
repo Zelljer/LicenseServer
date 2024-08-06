@@ -5,7 +5,7 @@ namespace LicenseServer.Database
 {
 	public class ApplicationContext : DbContext
 	{
-		public ApplicationContext() {}
+		public ApplicationContext() { }
 
 		public static ApplicationContext New => new();
 

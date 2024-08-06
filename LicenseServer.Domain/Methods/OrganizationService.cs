@@ -81,6 +81,10 @@ namespace LicenseServer.Domain.Methods
 				using var context = ApplicationContext.New;
                 var errorResult = new List<string>();
 
+                errorResult
+                    .AddRange(Validator
+                    .IsValidData(organization.Name, "Не корректное название"));
+
                 if (!Validations.IsValidInn(organization.Inn))
 					errorResult.Add("Не корректный ИНН");
 
@@ -100,7 +104,8 @@ namespace LicenseServer.Domain.Methods
 
                 OrganizationEntity currentOrganization = new()
 				{
-					Inn = organization.Inn,
+                    Name = organization.Name,
+                    Inn = organization.Inn,
 					Kpp = organization.Inn.Length == 12 ? "" : organization.Kpp,
 					Email = organization.Email,
 					Phone = organization.Phone

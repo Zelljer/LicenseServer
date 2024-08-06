@@ -59,9 +59,9 @@ namespace LicenseServer.Web.Controllers.v1
 			var token = Request.Cookies["Authorization"];
 
 			if (string.IsNullOrEmpty(token))
-				return BadRequest(new { Status = "Fail", Message = "Токен не найден в куки." });
+                return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Токен не найден в куки." } });
 
-			return Ok(new { Status = "Success", Token = token });
+			return Ok(new TestResult<string> { IsSuccsess = true, Data = token });
 		}
 	}
 }

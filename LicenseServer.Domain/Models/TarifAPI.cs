@@ -1,4 +1,5 @@
 ﻿using LicenseServer.Database.Dependencies;
+using Newtonsoft.Json;
 
 namespace LicenseServer.Domain.Models
 {
@@ -6,18 +7,27 @@ namespace LicenseServer.Domain.Models
     {
         public class TarifResponse
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public string Program { get; set; }
-            public long Price { get; set; }
-            public int DaysCount { get; set; }
-        }
+			[JsonProperty("id")]
+			public int Id { get; set; }
+			[JsonProperty("name")]
+			public string Name { get; set; }
+			[JsonProperty("program")]
+			public string Program { get; set; }
+			[JsonProperty("price")]
+			public long Price { get; set; }
+			[JsonProperty("daysCount")]
+			public int DaysCount { get; set; }
+		}
         public class TarifRequest
         {
-            public string Name { get; set; }
-            public ProgramType Program { get; set; }
-            public long Price { get; set; }
-            public int DaysCount { get; set; }
-        }
+			[JsonProperty("name")]
+			public string Name { get; set; }
+			[JsonProperty("program")]
+			public ProgramType Program { get; set; }
+			[JsonProperty("price")]
+			public long Price { get; set; }
+			[JsonProperty("daysCount")]
+			public int DaysCount { get; set; }
+		}
     }
 }

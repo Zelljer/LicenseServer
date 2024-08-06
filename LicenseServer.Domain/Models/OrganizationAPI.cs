@@ -9,6 +9,8 @@ namespace LicenseServer.Domain.Models
         {
             [JsonProperty("id")]
             public int Id { get; set; }
+            [JsonProperty("name")]
+            public string Name { get; set; }
             [JsonProperty("inn")]
             public string Inn { get; set; }
             [JsonProperty("kpp")]
@@ -20,6 +22,8 @@ namespace LicenseServer.Domain.Models
         }
         public class OrganizationRequest
         {
+            [JsonProperty("name")]
+            public string Name { get; set; }
             [JsonProperty("inn")]
             public string Inn { get; set; }
             [JsonProperty("kpp")]
