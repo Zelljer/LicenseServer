@@ -14,7 +14,6 @@ namespace LicenseServer.Domain.Models
             [JsonProperty("kpp")]
             public string? Kpp { get; set; }
             [JsonProperty("email")]
-            [DataType(DataType.EmailAddress)]
             public string Email { get; set; }
             [JsonProperty("phone")]
             public string Phone { get; set; }

@@ -19,10 +19,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
-				var licenses = await _organizationService.GetOrganizationsByPages(page, pageSize);
+                var licenses = await _organizationService.GetOrganizationsByPages(page, pageSize);
 				return Ok(licenses);
 			}
 			catch (Exception ex)
@@ -37,11 +37,11 @@ namespace LicenseServer.Web.Controllers.v1
 		public async Task<ActionResult> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{
 			try
-			{ 
-				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+			{
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
-				var createdOrganization = await _organizationService.CreateOrganization(organization);
+                var createdOrganization = await _organizationService.CreateOrganization(organization);
 				return CreatedAtAction(nameof(GetOrganizationsByPages), createdOrganization);
 			}
 			catch (Exception ex)

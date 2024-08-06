@@ -84,7 +84,7 @@ namespace LicenseServer.Domain.Methods
 					var tarif = await context.Tarifs.FindAsync(tarifId);
 
 					if (tarif == null)
-                        return new TestResult<TarifAPI.TarifResponse> { IsSuccsess = true, Data = new TarifAPI.TarifResponse()};
+                        return new TestResult<TarifAPI.TarifResponse> { IsSuccsess = true };
 
                     var currentTarif = new TarifAPI.TarifResponse()
 					{

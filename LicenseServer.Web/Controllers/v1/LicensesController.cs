@@ -19,10 +19,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
-				var licenses = await _licensService.GetLicensesByOrgId(orgId);
+                var licenses = await _licensService.GetLicensesByOrgId(orgId);
 				return Ok(licenses);
 			}
 			catch (Exception ex)
@@ -37,10 +37,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
-				var licenses = await _licensService.GetLicensesByOrgIdWithProgId(orgId, programId);
+                var licenses = await _licensService.GetLicensesByOrgIdWithProgId(orgId, programId);
 				return Ok(licenses);
 			}
 			catch (Exception ex)
@@ -56,10 +56,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
-				var createdLicense = await _licensService.CreateLicense(licenseData);
+                var createdLicense = await _licensService.CreateLicense(licenseData);
 				return CreatedAtAction(nameof(GetLicensesByOrg), createdLicense);
 			}
 			catch (Exception ex)
@@ -75,10 +75,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
-				var deleteLicense = await _licensService.DeleteLicenseById(licenseId);
+                var deleteLicense = await _licensService.DeleteLicenseById(licenseId);
 				return Ok(deleteLicense);
 			}
 			catch (Exception ex)

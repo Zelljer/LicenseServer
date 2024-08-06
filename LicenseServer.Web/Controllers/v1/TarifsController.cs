@@ -21,10 +21,10 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
+					return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
 				var createdTarif = await _tarifService.CreateTarif(tarif);
-				return CreatedAtAction(nameof(GetAllTarifs), createdTarif);
+				return Ok(createdTarif);
 			}
 			catch (Exception ex)
 			{
@@ -54,9 +54,9 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (!ModelState.IsValid)
-					return BadRequest(new { Status = "Fail", Data = "Введите корректные данные" });
-			
-				var tarifs = await _tarifService.GetTariffById(tarifId);
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+
+                var tarifs = await _tarifService.GetTariffById(tarifId);
 				return Ok(tarifs);
 			}
 			catch (Exception ex)

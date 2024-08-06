@@ -21,7 +21,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				var authorizatedUser = await _userService.UserLogin(user);
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+
+                var authorizatedUser = await _userService.UserLogin(user);
 				return Ok(authorizatedUser); 
 			}
 			catch (Exception ex)
@@ -36,7 +39,10 @@ namespace LicenseServer.Web.Controllers.v1
 		{
 			try
 			{
-				var registeredUser = await _userService.UserRegistration(user);
+                if (!ModelState.IsValid)
+                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+
+                var registeredUser = await _userService.UserRegistration(user);
 				return Ok(registeredUser);
 
 			}
