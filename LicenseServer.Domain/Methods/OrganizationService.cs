@@ -36,7 +36,7 @@ namespace LicenseServer.Domain.Methods
 					.ToListAsync();
 
 				if (!organizations.Any())
-                    return new TestResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true};
+                    return new TestResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true };
 
 				var licenses = await context.Licenses
 					.Include(l => l.Organization)

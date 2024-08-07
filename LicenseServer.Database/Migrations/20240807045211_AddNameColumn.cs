@@ -5,7 +5,7 @@
 namespace LicenseServer.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrganizationName : Migration
+    public partial class AddNameColumn : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

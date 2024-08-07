@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LicenseServer.Database.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240806124642_AddOrganizationName")]
-    partial class AddOrganizationName
+    [Migration("20240807045211_AddNameColumn")]
+    partial class AddNameColumn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

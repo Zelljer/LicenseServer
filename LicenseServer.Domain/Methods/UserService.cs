@@ -64,7 +64,7 @@ namespace LicenseServer.Domain.Methods
 
                 return new TestResult<string> { IsSuccsess = true, Data = "Пользователь зарегистрирован успешно" }; 
 			}
-			catch 
+			catch
 			{
                 return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }

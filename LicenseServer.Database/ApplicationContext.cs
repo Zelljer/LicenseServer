@@ -14,7 +14,7 @@ namespace LicenseServer.Database
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=LicenseServer;Trusted_Connection=True;Trust Server Certificate=True;");
-		}
+        }
 
 		public DbSet<TarifEntity> Tarifs { get; set; }
         public DbSet<LicenseEntity> Licenses { get; set; }

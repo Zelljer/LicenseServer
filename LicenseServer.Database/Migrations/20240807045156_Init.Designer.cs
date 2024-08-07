@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LicenseServer.Database.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240730084030_Init")]
+    [Migration("20240807045156_Init")]
     partial class Init
     {
         /// <inheritdoc />
