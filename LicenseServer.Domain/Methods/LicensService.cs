@@ -11,13 +11,13 @@ namespace LicenseServer.Domain.Methods
 {
 	public class LicensService
 	{
-		public async Task<TestResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgId(int orgId)
+		public async Task<HTTPResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgId(int orgId)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
 				if (orgId <= 0)
-                    return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Не корректный Id организации" }, IsSuccsess = false };
+                    return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Не корректный Id организации" }, IsSuccsess = false };
 
 				var licenses = await context.Licenses
 					.Where(l => l.Organization.Id == orgId && l.EndDate > DateTime.Now)
@@ -31,15 +31,15 @@ namespace LicenseServer.Domain.Methods
 						EndDate = t.EndDate,
 					}).ToListAsync();
 
-                return new TestResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses };
+                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses };
 			}
 			catch
 			{
-                return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgIdWithProgId(int orgId, ProgramType programId) 
+		public async Task<HTTPResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgIdWithProgId(int orgId, ProgramType programId) 
 		{
 			try
 			{
@@ -55,7 +55,7 @@ namespace LicenseServer.Domain.Methods
 					errorResult.Add("Указана не существующая программа");
 
 				if (errorResult.Any())
-					return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = errorResult, IsSuccsess = false };
+					return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = errorResult, IsSuccsess = false };
 
 				var licenses = await context.Licenses
 					.Include(l => l.Organization)
@@ -71,15 +71,15 @@ namespace LicenseServer.Domain.Methods
 						EndDate = t.EndDate,
 					}).ToListAsync();
 
-                return new TestResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses }; 
+                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses }; 
 			}
 			catch
 			{
-                return new TestResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<string>> CreateLicense(LicenseAPI.LicenseRequest licenseData)
+		public async Task<HTTPResult<string>> CreateLicense(LicenseAPI.LicenseRequest licenseData)
 		{
 			try
 			{
@@ -110,7 +110,7 @@ namespace LicenseServer.Domain.Methods
 					errorResult.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
 
 				if (errorResult.Any())
-                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
                 var currentLicense = new LicenseEntity
 				{
@@ -123,35 +123,35 @@ namespace LicenseServer.Domain.Methods
 				context.Licenses.Add(currentLicense);
 				await context.SaveChangesAsync();
 
-                return new TestResult<string> { IsSuccsess = true, Data = "Лицензия создана успешно" };
+                return new HTTPResult<string> { IsSuccsess = true, Data = "Лицензия создана успешно" };
             }
 			catch
 			{
-                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<string>> DeleteLicenseById(int licenseId)
+		public async Task<HTTPResult<string>> DeleteLicenseById(int licenseId)
 		{
 			try
 			{
 				using var context = ApplicationContext.New;
 				if (licenseId <= 0)
-					return new TestResult<string> { Errors = new() { "Не корректный Id лицензии" }, IsSuccsess = false };
+					return new HTTPResult<string> { Errors = new() { "Не корректный Id лицензии" }, IsSuccsess = false };
 
                 var license = await context.Licenses.FindAsync(licenseId);
 
 				if (license == null)
-                    return new TestResult<string> { Errors = new() { "Указана не существующая лицензия" }, IsSuccsess = false };
+                    return new HTTPResult<string> { Errors = new() { "Указана не существующая лицензия" }, IsSuccsess = false };
 
 				context.Licenses.Remove(license);
 				await context.SaveChangesAsync();
 
-                return new TestResult<string> { IsSuccsess = true, Data = "Данные удалены" };
+                return new HTTPResult<string> { IsSuccsess = true, Data = "Данные удалены" };
 			}
 			catch 
 			{
-                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
         
 		}

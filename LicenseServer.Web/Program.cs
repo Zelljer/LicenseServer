@@ -37,7 +37,8 @@ builder.Services.AddAuthentication(options =>
 	{
 		OnMessageReceived = context =>
 		{
-			context.Token = context.Request.Cookies[Constans.HeaderAuthorize];
+            //context.Token = context.Request.Headers[Constans.HeaderAuthorize];
+            context.Token = context.Request.Cookies[Constans.HeaderAuthorize];
 			return Task.CompletedTask;
 		}
 	};
@@ -61,30 +62,32 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowAll",
-		builder => builder.AllowAnyOrigin()
-						  .AllowAnyMethod()
-						  .AllowAnyHeader());
+	options.AddPolicy("AllowSpecificOrigin", builder =>
+	{
+		builder.WithOrigins("https://localhost:7026") // Замените на ваш клиентский URL
+			   .AllowAnyMethod()
+			   .AllowAnyHeader()
+			   .AllowCredentials(); // Позволяет отправку куки
+	});
 });
-
 var app = builder.Build();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigin");
 
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+	//app.UseSwagger();
+	//app.UseSwaggerUI();
 }
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Приложение запущено");
 
+
+
 // Middleware
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

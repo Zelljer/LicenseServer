@@ -9,8 +9,40 @@ namespace LicenseServer.Domain.Methods
 {
 	public class OrganizationService
 	{
+        public async Task<HTTPResult<OrganizationAPI.OrganizationResponse>> GetOrganizationById(int organizationId)
+        {
+            try
+            {
+                using var context = ApplicationContext.New;
 
-		public async Task<TestResult<PagedResult<OrganizationsLiceses>>> GetOrganizationsByPages(int page, int pageSize)
+                if (organizationId <= 0)
+                    return new HTTPResult<OrganizationAPI.OrganizationResponse> { Errors = new() { "Не существует организации с таким Id" }, IsSuccsess = false };
+
+                var organization = await context.Organizations.FindAsync(organizationId);
+
+                if (organization == null)
+                    return new HTTPResult<OrganizationAPI.OrganizationResponse> { IsSuccsess = true };
+
+                var currentOrganization = new OrganizationAPI.OrganizationResponse()
+                {
+                    Id = organization.Id,
+                    Name = organization.Name,
+                    Inn = organization.Inn,
+                    Kpp = organization.Kpp,
+                    Email = organization.Email,
+                    Phone = organization.Phone,
+                };
+
+                return new HTTPResult<OrganizationAPI.OrganizationResponse> { IsSuccsess = true, Data = currentOrganization };
+            }
+            catch
+            {
+                return new HTTPResult<OrganizationAPI.OrganizationResponse> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+            }
+        }
+
+
+        public async Task<HTTPResult<PagedResult<OrganizationsLiceses>>> GetOrganizationsByPages(int page, int pageSize)
 		{
 			try
 			{
@@ -28,7 +60,7 @@ namespace LicenseServer.Domain.Methods
 					);
 
 				if (errorResult.Any())
-					 return new TestResult<PagedResult<OrganizationsLiceses>> { Errors = errorResult, IsSuccsess = false };
+					 return new HTTPResult<PagedResult<OrganizationsLiceses>> { Errors = errorResult, IsSuccsess = false };
 
                 var organizations = await context.Organizations
 					.Skip((page - 1) * pageSize)
@@ -36,7 +68,7 @@ namespace LicenseServer.Domain.Methods
 					.ToListAsync();
 
 				if (!organizations.Any())
-                    return new TestResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true };
+                    return new HTTPResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true };
 
 				var licenses = await context.Licenses
 					.Include(l => l.Organization)
@@ -66,15 +98,15 @@ namespace LicenseServer.Domain.Methods
 					CurrentPage = page
 				};
 
-                return new TestResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true, Data = currentPage };
+                return new HTTPResult<PagedResult<OrganizationsLiceses>> { IsSuccsess = true, Data = currentPage };
 			}
 			catch
 			{
-                return new TestResult<PagedResult<OrganizationsLiceses>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<PagedResult<OrganizationsLiceses>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<string>> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
+		public async Task<HTTPResult<string>> CreateOrganization(OrganizationAPI.OrganizationRequest organization)
 		{
 			try
 			{
@@ -100,7 +132,7 @@ namespace LicenseServer.Domain.Methods
 					.IsValidPhone(organization.Phone));
 
 				if (errorResult.Any())
-                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
                 OrganizationEntity currentOrganization = new()
 				{
@@ -113,11 +145,11 @@ namespace LicenseServer.Domain.Methods
 				context.Organizations.Add(currentOrganization);
 				await context.SaveChangesAsync();
 
-                return new TestResult<string> { Data = "Организация создана успешно", IsSuccsess = true };
+                return new HTTPResult<string> { Data = "Организация создана успешно", IsSuccsess = true };
             }
 			catch 
 			{
-                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		} 
 	}

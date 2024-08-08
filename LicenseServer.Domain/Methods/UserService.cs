@@ -9,7 +9,7 @@ namespace LicenseServer.Domain.Methods
 {
 	public class UserService(CookieManager cookieManager)
 	{
-		public async Task<TestResult<string>> UserRegistration(UserAPI.UserRegistrationRequest user)
+		public async Task<HTTPResult<string>> UserRegistration(UserAPI.UserRegistrationRequest user)
 		{
 			try
 			{
@@ -47,7 +47,7 @@ namespace LicenseServer.Domain.Methods
 					errorResult.Add("Не существующая роль");
 
 				if (errorResult.Any())
-                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
                 var currentUser = new UserEntity
 				{
@@ -62,15 +62,15 @@ namespace LicenseServer.Domain.Methods
 				context.Users.Add(currentUser);
 				await context.SaveChangesAsync();
 
-                return new TestResult<string> { IsSuccsess = true, Data = "Пользователь зарегистрирован успешно" }; 
+                return new HTTPResult<string> { IsSuccsess = true, Data = "Пользователь зарегистрирован успешно" }; 
 			}
 			catch
 			{
-                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<string>> UserLogin(UserAPI.UserAuthentificationRequest user)
+		public async Task<HTTPResult<string>> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
 			{
@@ -86,24 +86,24 @@ namespace LicenseServer.Domain.Methods
 					.IsValidData(user.Password, "Укажите пароль"));
 
 				if (errorResult.Any())
-                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
                 var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
 
 				if (currentUser == null)
-                    return new TestResult<string> { Errors = new() { "Нет пользователя с таким логином" }, IsSuccsess=false };
+                    return new HTTPResult<string> { Errors = new() { "Нет пользователя с таким логином" }, IsSuccsess=false };
 
 				if (!Hasher.VerifyPassword(currentUser.Password, user.Password))
-                    return new TestResult<string> { Errors = new() { "Не правильный пароль" }, IsSuccsess = false };  
+                    return new HTTPResult<string> { Errors = new() { "Не правильный пароль" }, IsSuccsess = false };  
 
 				var token = TokenManager.GenerateToken(currentUser);
 				cookieManager.SetAccessTokenCookie(token);
 
-                return new TestResult<string> { IsSuccsess = true, Data = token };
+                return new HTTPResult<string> { IsSuccsess = true, Data = token };
             }
 			catch
 			{
-                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 	}

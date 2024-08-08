@@ -10,7 +10,7 @@ namespace LicenseServer.Domain.Methods
 	public class TarifService
 	{
 
-		public async Task<TestResult<string>> CreateTarif(TarifAPI.TarifRequest tarif)
+		public async Task<HTTPResult<string>> CreateTarif(TarifAPI.TarifRequest tarif)
 		{
 			try
 			{
@@ -28,7 +28,7 @@ namespace LicenseServer.Domain.Methods
 					.IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
 
 				if (errorResult.Any())
-                    return new TestResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
                 TarifEntity currentTarif = new TarifEntity()
 				{
@@ -41,15 +41,15 @@ namespace LicenseServer.Domain.Methods
 				context.Tarifs.Add(currentTarif);
 				await context.SaveChangesAsync();
 
-                return new TestResult<string> { IsSuccsess = true, Data = "Тариф создан успешно" }; 
+                return new HTTPResult<string> { IsSuccsess = true, Data = "Тариф создан успешно" }; 
 			}
 			catch
 			{
-                return new TestResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<List<TarifAPI.TarifResponse>>> GetAllTarifs()
+		public async Task<HTTPResult<List<TarifAPI.TarifResponse>>> GetAllTarifs()
 		{
 			try
 			{
@@ -64,43 +64,41 @@ namespace LicenseServer.Domain.Methods
 
 				}).ToListAsync();
 
-                return new TestResult<List<TarifAPI.TarifResponse>> { IsSuccsess = true, Data = tarif };
+                return new HTTPResult<List<TarifAPI.TarifResponse>> { IsSuccsess = true, Data = tarif };
             }
 			catch 
 			{
-                return new TestResult<List<TarifAPI.TarifResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return new HTTPResult<List<TarifAPI.TarifResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
             }
 		}
 
-		public async Task<TestResult<TarifAPI.TarifResponse>> GetTariffById(int tarifId)
+		public async Task<HTTPResult<TarifAPI.TarifResponse>> GetTariffById(int tarifId)
 		 {
 			try
 			{
-				using (var context = ApplicationContext.New)
-				{
-					if (tarifId <= 0)
-						return new TestResult<TarifAPI.TarifResponse> { Errors = new() { "Не существует тарифа с таким Id" }, IsSuccsess=false };
+                using var context = ApplicationContext.New;
+                if (tarifId <= 0)
+                    return new HTTPResult<TarifAPI.TarifResponse> { Errors = new() { "Не существует тарифа с таким Id" }, IsSuccsess = false };
 
-					var tarif = await context.Tarifs.FindAsync(tarifId);
+                var tarif = await context.Tarifs.FindAsync(tarifId);
 
-					if (tarif == null)
-                        return new TestResult<TarifAPI.TarifResponse> { IsSuccsess = true };
+                if (tarif == null)
+                    return new HTTPResult<TarifAPI.TarifResponse> { IsSuccsess = true };
 
-                    var currentTarif = new TarifAPI.TarifResponse()
-					{
-						Id = tarif.Id,
-						Name = tarif.Name,
-						Program = tarif.Program.ToString(),
-						Price = tarif.Price,
-						DaysCount = tarif.DaysCount
-					};
+                var currentTarif = new TarifAPI.TarifResponse()
+                {
+                    Id = tarif.Id,
+                    Name = tarif.Name,
+                    Program = tarif.Program.ToString(),
+                    Price = tarif.Price,
+                    DaysCount = tarif.DaysCount
+                };
 
-					return new TestResult<TarifAPI.TarifResponse> { IsSuccsess = true, Data = currentTarif };
-				}
-			}
+                return new HTTPResult<TarifAPI.TarifResponse> { IsSuccsess = true, Data = currentTarif };
+            }
 			catch
 			{
-                return new TestResult<TarifAPI.TarifResponse> { Errors = new() { "Ошибка" }, IsSuccsess = false};
+                return new HTTPResult<TarifAPI.TarifResponse> { Errors = new() { "Ошибка" }, IsSuccsess = false};
             }
 		}
 	}

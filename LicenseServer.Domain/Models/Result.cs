@@ -2,7 +2,7 @@
 
 namespace LicenseServer.Domain.Models
 {
-    public class TestResult<T>
+    public class HTTPResult<T>
 	{
         [JsonProperty("isSuccsess")]
         public bool IsSuccsess { get; set; }

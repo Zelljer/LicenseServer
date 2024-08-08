@@ -21,7 +21,7 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (!ModelState.IsValid)
-					return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+					return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
 				var createdTarif = await _tarifService.CreateTarif(tarif);
 				return Ok(createdTarif);
@@ -54,7 +54,7 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var tarifs = await _tarifService.GetTariffById(tarifId);
 				return Ok(tarifs);

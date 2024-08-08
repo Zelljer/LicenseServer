@@ -20,7 +20,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var licenses = await _licensService.GetLicensesByOrgId(orgId);
 				return Ok(licenses);
@@ -38,7 +38,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var licenses = await _licensService.GetLicensesByOrgIdWithProgId(orgId, programId);
 				return Ok(licenses);
@@ -57,7 +57,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var createdLicense = await _licensService.CreateLicense(licenseData);
 				return CreatedAtAction(nameof(GetLicensesByOrg), createdLicense);
@@ -76,7 +76,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var deleteLicense = await _licensService.DeleteLicenseById(licenseId);
 				return Ok(deleteLicense);

@@ -22,7 +22,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var authorizatedUser = await _userService.UserLogin(user);
 				return Ok(authorizatedUser); 
@@ -40,7 +40,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var registeredUser = await _userService.UserRegistration(user);
 				return Ok(registeredUser);
@@ -59,9 +59,9 @@ namespace LicenseServer.Web.Controllers.v1
 			var token = Request.Cookies["Authorization"];
 
 			if (string.IsNullOrEmpty(token))
-                return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Токен не найден в куки." } });
+                return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Токен не найден в куки." } });
 
-			return Ok(new TestResult<string> { IsSuccsess = true, Data = token });
+			return Ok(new HTTPResult<string> { IsSuccsess = true, Data = token });
 		}
 	}
 }

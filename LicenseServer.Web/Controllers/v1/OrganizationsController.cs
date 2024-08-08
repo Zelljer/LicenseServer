@@ -14,13 +14,31 @@ namespace LicenseServer.Web.Controllers.v1
 		private readonly OrganizationService _organizationService = new OrganizationService();
 		private readonly ILogger<OrganizationsController> _logger = logger;
 
-		[HttpGet("organizations")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
+        [HttpGet("organizationId")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
+        public async Task<ActionResult> GetOrganizationById(int organizationId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+
+                var licenses = await _organizationService.GetOrganizationById(organizationId);
+                return Ok(licenses);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
+            }
+        }
+
+        [HttpGet("organizations")] // 5. GET Метод получения списка всех организаций из БД со списком всех лицензий (постраничный вывод)
 		public async Task<ActionResult> GetOrganizationsByPages(int page, int pageSize)
 		{
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var licenses = await _organizationService.GetOrganizationsByPages(page, pageSize);
 				return Ok(licenses);
@@ -39,7 +57,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new TestResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
 
                 var createdOrganization = await _organizationService.CreateOrganization(organization);
 				return CreatedAtAction(nameof(GetOrganizationsByPages), createdOrganization);
