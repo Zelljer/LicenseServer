@@ -14,7 +14,7 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
+
 				var errorResult = new List<string>();
 
 				if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
@@ -38,7 +38,8 @@ namespace LicenseServer.Domain.Methods
 					DaysCount = tarif.DaysCount
 				};
 
-				context.Tarifs.Add(currentTarif);
+                using var context = ApplicationContext.New;
+                context.Tarifs.Add(currentTarif);
 				await context.SaveChangesAsync();
 
                 return new HTTPResult<string> { IsSuccsess = true, Data = "Тариф создан успешно" }; 
@@ -76,10 +77,11 @@ namespace LicenseServer.Domain.Methods
 		 {
 			try
 			{
-                using var context = ApplicationContext.New;
+
                 if (tarifId <= 0)
                     return new HTTPResult<TarifAPI.TarifResponse> { Errors = new() { "Не существует тарифа с таким Id" }, IsSuccsess = false };
 
+                using var context = ApplicationContext.New;
                 var tarif = await context.Tarifs.FindAsync(tarifId);
 
                 if (tarif == null)

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace LicenseServer.Domain.Utils
 {
@@ -28,15 +29,12 @@ namespace LicenseServer.Domain.Utils
 
 		public static List<string> IsValidEmail(string email)
 		{
-			List<string> errors = [];
-
 			if (email.Length == 0)
-			{
-				errors.Add("Укажите эл. почту");
-				return errors;
-			}
+                return new() { "Укажите эл. почту" };
 
-			if (!Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"))
+            List<string> errors = [];
+
+            if (!Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"))
 				errors.Add("Введена не корректная почта");
 
 			return errors;
@@ -44,14 +42,12 @@ namespace LicenseServer.Domain.Utils
 
 		public static List<string> IsValidPhone(string phone)
 		{
-			List<string> errors = [];
 			if (phone.Length == 0)
-			{
-				errors.Add("Укажите номер телефона");
-				return errors;
-			}
+                return new() { "Укажите номер телефона" };
 
-			if (!Regex.IsMatch(phone, @"^[+]?\d+$"))
+            List<string> errors = [];
+
+            if (!Regex.IsMatch(phone, @"^[+]?\d+$"))
 				errors.Add("В номере телефона не должны присутствовать буквы и другие символы");
 
 			if (!Regex.IsMatch(phone, @"^(\+7|7|8)\d*$"))
@@ -62,9 +58,20 @@ namespace LicenseServer.Domain.Utils
 			int maxLength = phone.StartsWith("+") ? 13 : 11; 
 
 			if (phoneLength < minLength || phoneLength > maxLength)
-				errors.Add($"Номер телефона должен содержать 11 цифр");
+				errors.Add("Номер телефона должен содержать 11 цифр");
 
 			return errors;
 		}
-	}
+
+        public static List<string> IsValidDate(string date)
+        {
+			if (!DateTime.TryParseExact(date, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
+				return new() { "Введите корректную дату создания лицензии в формате dd.mm.yyyy" };
+
+            else if (daeteTime < DateTime.Now)
+                return new() { "Дата не может быть раньше текущего дня" };
+
+            return [];
+        }
+    }
 }

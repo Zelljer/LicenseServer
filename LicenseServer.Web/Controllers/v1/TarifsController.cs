@@ -1,6 +1,7 @@
 ﻿using LicenseServer.Database.Dependencies;
 using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using LicenseServer.Domain.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,16 +22,16 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (!ModelState.IsValid)
-					return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
-				var createdTarif = await _tarifService.CreateTarif(tarif);
+                var createdTarif = await _tarifService.CreateTarif(tarif);
 				return Ok(createdTarif);
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new {Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 
 		[HttpGet("tarifs")] // 1. GET Метод получения списка информации о тарифах, которые продает ГК ТриАр (вовзращать список)
@@ -44,8 +45,8 @@ namespace LicenseServer.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 
 		[HttpGet("tarifsId")] // 2. GET Метод получения списка информации 1 тарифе, которую продает ГК ТриАр (возвращать 1 запись по id )
@@ -54,7 +55,7 @@ namespace LicenseServer.Controllers.v1
 			try
 			{
 				if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var tarifs = await _tarifService.GetTariffById(tarifId);
 				return Ok(tarifs);
@@ -62,8 +63,8 @@ namespace LicenseServer.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 	}
 }

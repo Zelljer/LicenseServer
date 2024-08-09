@@ -4,21 +4,19 @@ using LicenseServer.Database.Entity;
 using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
-using System.Globalization;
 
 namespace LicenseServer.Domain.Methods
 {
-	public class LicensService
+    public class LicensService
 	{
 		public async Task<HTTPResult<List<LicenseAPI.LicenseResponse>>> GetLicensesByOrgId(int orgId)
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
-				if (orgId <= 0)
+                if (orgId <= 0)
                     return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Не корректный Id организации" }, IsSuccsess = false };
 
+                using var context = ApplicationContext.New;
 				var licenses = await context.Licenses
 					.Where(l => l.Organization.Id == orgId && l.EndDate > DateTime.Now)
 					.Select(t => new LicenseAPI.LicenseResponse
@@ -48,7 +46,7 @@ namespace LicenseServer.Domain.Methods
 
 				errorResult.AddRange(Validator.IsValidData(orgId, "Не корректный Id организации"));
 
-				if (context.Organizations.Find(orgId) == null)
+				if (context.Organizations.FirstOrDefault(x => x.Id == orgId) == null)
 					errorResult.Add("Нет организации с таким Id");
 
 				if (!Enum.IsDefined(typeof(ProgramType), programId))
@@ -103,13 +101,11 @@ namespace LicenseServer.Domain.Methods
 				if (neededTarif == null)
 					errorResult.Add("Нет тарифа с таким Id");
 
-				var currentLicenseDateStart = new DateTime();
-				if (DateTime.TryParseExact(licenseData.DateStart, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
-					currentLicenseDateStart = daeteTime;
-				else
-					errorResult.Add("Введите дату создания лицензии в формате dd.mm.yyyy");
+                errorResult
+                    .AddRange(Validator
+                    .IsValidDate(licenseData.DateStart));
 
-				if (errorResult.Any())
+                if (errorResult.Any())
                     return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
                 var currentLicense = new LicenseEntity
@@ -117,8 +113,8 @@ namespace LicenseServer.Domain.Methods
 					Organization = neededOrganization,
 					Tarif = neededTarif,
 					DateCreated = DateTime.Now,
-					StartDate = currentLicenseDateStart,
-					EndDate = currentLicenseDateStart + TimeSpan.FromDays(neededTarif.DaysCount),
+					StartDate = DateTime.Parse(licenseData.DateStart),
+					EndDate = DateTime.Parse(licenseData.DateStart).AddDays(neededTarif.DaysCount),
 				};
 				context.Licenses.Add(currentLicense);
 				await context.SaveChangesAsync();
@@ -135,9 +131,10 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
-				if (licenseId <= 0)
-					return new HTTPResult<string> { Errors = new() { "Не корректный Id лицензии" }, IsSuccsess = false };
+                if (licenseId <= 0)
+                    return new HTTPResult<string> { Errors = new() { "Не корректный Id лицензии" }, IsSuccsess = false };
+
+                using var context = ApplicationContext.New;
 
                 var license = await context.Licenses.FindAsync(licenseId);
 

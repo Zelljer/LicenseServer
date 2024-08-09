@@ -1,5 +1,6 @@
 ﻿using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using LicenseServer.Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LicenseServer.Web.Controllers.v1
@@ -22,7 +23,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var authorizatedUser = await _userService.UserLogin(user);
 				return Ok(authorizatedUser); 
@@ -30,8 +31,8 @@ namespace LicenseServer.Web.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 
 		[HttpPost("registration")] // POST Метод регистрации
@@ -40,7 +41,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var registeredUser = await _userService.UserRegistration(user);
 				return Ok(registeredUser);
@@ -49,8 +50,8 @@ namespace LicenseServer.Web.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 
 		[HttpGet("check-token")] // POST Метод проверкитокена
@@ -59,9 +60,9 @@ namespace LicenseServer.Web.Controllers.v1
 			var token = Request.Cookies["Authorization"];
 
 			if (string.IsNullOrEmpty(token))
-                return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Токен не найден в куки." } });
+                return ResponseResults.ErrorOkResult("Токен не найден в куки");
 
-			return Ok(new HTTPResult<string> { IsSuccsess = true, Data = token });
+			return ResponseResults.SuccessResult(token);
 		}
 	}
 }

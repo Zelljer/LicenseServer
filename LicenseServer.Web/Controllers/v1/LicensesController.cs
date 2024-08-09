@@ -1,6 +1,7 @@
 ﻿using LicenseServer.Database.Dependencies;
 using LicenseServer.Domain.Methods;
 using LicenseServer.Domain.Models;
+using LicenseServer.Domain.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,15 +21,15 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var licenses = await _licensService.GetLicensesByOrgId(orgId);
-				return Ok(licenses);
+				return  Ok(licenses);
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
+				return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
 			}
 		}
 
@@ -38,7 +39,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные" );
 
                 var licenses = await _licensService.GetLicensesByOrgIdWithProgId(orgId, programId);
 				return Ok(licenses);
@@ -46,8 +47,8 @@ namespace LicenseServer.Web.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 
 		[Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.Manager)}")]
@@ -57,7 +58,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var createdLicense = await _licensService.CreateLicense(licenseData);
 				return CreatedAtAction(nameof(GetLicensesByOrg), createdLicense);
@@ -65,8 +66,8 @@ namespace LicenseServer.Web.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 
 		[Authorize(Roles = nameof(RoleType.Admin))]
@@ -76,7 +77,7 @@ namespace LicenseServer.Web.Controllers.v1
 			try
 			{
                 if (!ModelState.IsValid)
-                    return Ok(new HTTPResult<string> { IsSuccsess = false, Errors = new() { "Введите корректные данные" } });
+                    return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var deleteLicense = await _licensService.DeleteLicenseById(licenseId);
 				return Ok(deleteLicense);
@@ -84,8 +85,8 @@ namespace LicenseServer.Web.Controllers.v1
 			catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				return BadRequest(new { Status = "Fail", Data = "Произошла ошибка при выполнении запроса" });
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+            }
 		}
 	}
 }

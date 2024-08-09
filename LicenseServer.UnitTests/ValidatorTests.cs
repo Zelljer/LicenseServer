@@ -103,6 +103,31 @@ namespace LicenseServer.UnitTests
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
-	}
+
+        [TestMethod]
+        public void IsValidDate_InvalidDate_ReturnsError()
+        {
+            string date1 = "31.09.2024";
+            string date2 = "23/09/2024";
+            var expectedErrors = "Введите корректную дату создания лицензии в формате dd.mm.yyyy";
+
+            var result1 = Validator.IsValidDate(date1);
+            var result2 = Validator.IsValidDate(date2);
+
+            Assert.IsTrue(result1.Contains(expectedErrors));
+            Assert.IsTrue(result2.Contains(expectedErrors));
+        }
+
+        [TestMethod]
+        public void IsValidDate_DateEarlier_ReturnsError()
+        {
+            string date = "01.01.2000";
+            var expectedErrors = "Дата не может быть раньше текущего дня";
+
+            var result = Validator.IsValidDate(date);
+
+            Assert.IsTrue(result.Contains(expectedErrors));
+        }
+    }
 }
 	

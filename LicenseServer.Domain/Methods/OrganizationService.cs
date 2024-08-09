@@ -13,10 +13,10 @@ namespace LicenseServer.Domain.Methods
         {
             try
             {
-                using var context = ApplicationContext.New;
-
                 if (organizationId <= 0)
                     return new HTTPResult<OrganizationAPI.OrganizationResponse> { Errors = new() { "Не существует организации с таким Id" }, IsSuccsess = false };
+
+                using var context = ApplicationContext.New;
 
                 var organization = await context.Organizations.FindAsync(organizationId);
 
@@ -46,7 +46,7 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
+
                 var errorResult = new List<string>();
 
                 errorResult
@@ -61,6 +61,8 @@ namespace LicenseServer.Domain.Methods
 
 				if (errorResult.Any())
 					 return new HTTPResult<PagedResult<OrganizationsLiceses>> { Errors = errorResult, IsSuccsess = false };
+
+                using var context = ApplicationContext.New;
 
                 var organizations = await context.Organizations
 					.Skip((page - 1) * pageSize)
@@ -110,7 +112,7 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
+				
                 var errorResult = new List<string>();
 
                 errorResult
@@ -134,6 +136,7 @@ namespace LicenseServer.Domain.Methods
 				if (errorResult.Any())
                     return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
 
+
                 OrganizationEntity currentOrganization = new()
 				{
                     Name = organization.Name,
@@ -142,7 +145,9 @@ namespace LicenseServer.Domain.Methods
 					Email = organization.Email,
 					Phone = organization.Phone
 				};
-				context.Organizations.Add(currentOrganization);
+
+                using var context = ApplicationContext.New;
+                context.Organizations.Add(currentOrganization);
 				await context.SaveChangesAsync();
 
                 return new HTTPResult<string> { Data = "Организация создана успешно", IsSuccsess = true };

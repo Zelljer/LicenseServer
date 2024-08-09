@@ -74,7 +74,7 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
+				using var context = ApplicationContext.New;				
 				var errorResult = new List<string>();
 
                 errorResult
