@@ -12,7 +12,7 @@ namespace LicenseServer.Domain.Utils
 
         public static ActionResult ErrorsOkResult(List<string> errors)
         {
-            return new OkObjectResult(new HTTPResult<string> { IsSuccsess = false, Errors = errors });
+            return new OkObjectResult(HttpResults.StringResult.Fails(errors));
         }
 
         public static ActionResult ErrorOkResult(string error)
@@ -20,17 +20,14 @@ namespace LicenseServer.Domain.Utils
             return ErrorsOkResult(new List<string> { error });
         }
 
-        public static ActionResult ErrorsBadResult(List<string> errors)
+        public static ActionResult ErrorsBadResults(List<string> errors, ILogger logger, Exception exception)
         {
-            return new OkObjectResult(new HTTPResult<string> { IsSuccsess = false, Errors = errors });
+            return new BadRequestObjectResult(HttpResults.StringResult.Fails(errors));
         }
 
-        public static ActionResult ErrorBadResult(string error)
+        public static ActionResult ErrorBadResult(string error, ILogger logger, Exception exception)
         {
-            return ErrorsBadResult(new List<string> { error });
+            return new BadRequestObjectResult(HttpResults.StringResult.Fail(error));
         }
-
-
-
     }
 }

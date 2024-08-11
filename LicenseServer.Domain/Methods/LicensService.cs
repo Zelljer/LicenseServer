@@ -13,8 +13,8 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-                if (orgId <= 0)
-                    return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Не корректный Id организации" }, IsSuccsess = false };
+                if (!Validator.isValidId(orgId))
+                    return HttpResults.LicensesResult.Fail("Не корректный Id организации");
 
                 using var context = ApplicationContext.New;
 				var licenses = await context.Licenses
@@ -29,11 +29,11 @@ namespace LicenseServer.Domain.Methods
 						EndDate = t.EndDate,
 					}).ToListAsync();
 
-                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses };
+                return HttpResults.LicensesResult.Success(licenses);
 			}
 			catch
 			{
-                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.LicensesResult.Fail("Ошибка");
             }
 		}
 
@@ -53,7 +53,7 @@ namespace LicenseServer.Domain.Methods
 					errorResult.Add("Указана не существующая программа");
 
 				if (errorResult.Any())
-					return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = errorResult, IsSuccsess = false };
+					return HttpResults.LicensesResult.Fails(errorResult);
 
 				var licenses = await context.Licenses
 					.Include(l => l.Organization)
@@ -69,11 +69,11 @@ namespace LicenseServer.Domain.Methods
 						EndDate = t.EndDate,
 					}).ToListAsync();
 
-                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { IsSuccsess = true, Data = licenses }; 
+                return HttpResults.LicensesResult.Success(licenses); 
 			}
 			catch
 			{
-                return new HTTPResult<List<LicenseAPI.LicenseResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.LicensesResult.Fail("Ошибка");
             }
 		}
 
@@ -106,7 +106,7 @@ namespace LicenseServer.Domain.Methods
                     .IsValidDate(licenseData.DateStart));
 
                 if (errorResult.Any())
-                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return HttpResults.StringResult.Fails(errorResult);
 
                 var currentLicense = new LicenseEntity
 				{
@@ -119,11 +119,11 @@ namespace LicenseServer.Domain.Methods
 				context.Licenses.Add(currentLicense);
 				await context.SaveChangesAsync();
 
-                return new HTTPResult<string> { IsSuccsess = true, Data = "Лицензия создана успешно" };
+                return HttpResults.StringResult.Success("Лицензия создана успешно");
             }
 			catch
 			{
-                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.StringResult.Fail("Ошибка");
             }
 		}
 
@@ -131,24 +131,24 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-                if (licenseId <= 0)
-                    return new HTTPResult<string> { Errors = new() { "Не корректный Id лицензии" }, IsSuccsess = false };
+                if (!Validator.isValidId(licenseId))
+                    return HttpResults.StringResult.Fail("Не корректный Id лицензии");
 
                 using var context = ApplicationContext.New;
 
                 var license = await context.Licenses.FindAsync(licenseId);
 
 				if (license == null)
-                    return new HTTPResult<string> { Errors = new() { "Указана не существующая лицензия" }, IsSuccsess = false };
+                    return HttpResults.StringResult.Fail("Указана не существующая лицензия");
 
 				context.Licenses.Remove(license);
 				await context.SaveChangesAsync();
 
-                return new HTTPResult<string> { IsSuccsess = true, Data = "Данные удалены" };
+                return HttpResults.StringResult.Success("Данные удалены");
 			}
 			catch 
 			{
-                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.StringResult.Fail("Ошибка");
             }
         
 		}

@@ -47,7 +47,7 @@ namespace LicenseServer.Domain.Methods
 					errorResult.Add("Не существующая роль");
 
 				if (errorResult.Any())
-                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return HttpResults.StringResult.Fails(errorResult);
 
                 var currentUser = new UserEntity
 				{
@@ -62,11 +62,11 @@ namespace LicenseServer.Domain.Methods
 				context.Users.Add(currentUser);
 				await context.SaveChangesAsync();
 
-                return new HTTPResult<string> { IsSuccsess = true, Data = "Пользователь зарегистрирован успешно" }; 
+                return HttpResults.StringResult.Success("Пользователь зарегистрирован успешно"); 
 			}
 			catch
 			{
-                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.StringResult.Fail("Ошибка");
             }
 		}
 
@@ -86,24 +86,24 @@ namespace LicenseServer.Domain.Methods
 					.IsValidData(user.Password, "Укажите пароль"));
 
 				if (errorResult.Any())
-                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return HttpResults.StringResult.Fails(errorResult);
 
                 var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
 
 				if (currentUser == null)
-                    return new HTTPResult<string> { Errors = new() { "Нет пользователя с таким логином" }, IsSuccsess=false };
+                    return HttpResults.StringResult.Fail("Нет пользователя с таким логином");
 
 				if (!Hasher.VerifyPassword(currentUser.Password, user.Password))
-                    return new HTTPResult<string> { Errors = new() { "Не правильный пароль" }, IsSuccsess = false };  
+                    return HttpResults.StringResult.Fail("Не правильный пароль");  
 
 				var token = TokenManager.GenerateToken(currentUser);
 				cookieManager.SetAccessTokenCookie(token);
 
-                return new HTTPResult<string> { IsSuccsess = true, Data = token };
+                return HttpResults.StringResult.Success(token);
             }
 			catch
 			{
-                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.StringResult.Fail("Ошибка");
             }
 		}
 	}

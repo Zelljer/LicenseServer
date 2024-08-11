@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using LicenseServer.Domain.Models;
+using System.Globalization;
 using System.Text.RegularExpressions;
+using ValidationsCollection;
 
 namespace LicenseServer.Domain.Utils
 {
@@ -27,7 +29,55 @@ namespace LicenseServer.Domain.Utils
 			return errors;
 		}
 
-		public static List<string> IsValidEmail(string email)
+        public static bool isValidId(int id)
+        {
+            if (id <= 0)
+                return false;
+            return true;
+        }
+
+        public static bool isValidObject(object obj)
+        {
+            if (obj == null)
+                return false;
+            return true;
+        }
+
+        public static List<string> isValidOrganization(OrganizationAPI.OrganizationRequest organization)
+        {
+            var errors = new List<string>();
+
+            errors.AddRange(IsValidData(organization.Name, "Не корректное название"));
+
+            if (!Validations.IsValidInn(organization.Inn))
+                errors.Add("Не корректный ИНН");
+
+            if (organization.Inn.Length != 12 && !Validations.IsValidKpp(organization.Kpp))
+                errors.Add("Не корректный КПП");
+
+            errors.AddRange(IsValidEmail(organization.Email));
+
+            errors.AddRange(IsValidPhone(organization.Phone));
+
+            return errors;
+        }
+
+        public static List<string> isValidPage(int currentPage, int pageSize)
+        {
+            var errors = new List<string>();
+
+            errors
+                .AddRange(IsValidData(currentPage, "Укажите нужный номер страницы. Отсчет страниц начинается с 1")
+                );
+
+            errors
+                .AddRange(IsValidData(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)")
+                );
+
+            return errors;
+        }
+
+        public static List<string> IsValidEmail(string email)
 		{
 			if (email.Length == 0)
                 return new() { "Укажите эл. почту" };

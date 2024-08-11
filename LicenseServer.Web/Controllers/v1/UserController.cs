@@ -7,17 +7,12 @@ namespace LicenseServer.Web.Controllers.v1
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class UserController : ControllerBase
+	public class UserController(ILogger<UserController> logger, UserService userService) : ControllerBase
 	{
-		private readonly UserService _userService;
-		private readonly ILogger<UserController> _logger;
-		public UserController(ILogger<UserController> logger, UserService userService)
-		{
-			_userService = userService;
-			_logger = logger;
-		}
+		private readonly UserService _userService = userService;
+		private readonly ILogger<UserController> _logger = logger;
 
-		[HttpPost("authorization")] // POST Метод авторизация 
+        [HttpPost("authorization")] // POST Метод авторизация 
 		public async Task<ActionResult> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
@@ -30,8 +25,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 
@@ -49,20 +43,26 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 
 		[HttpGet("check-token")] // POST Метод проверкитокена
 		public IActionResult CheckToken()
 		{
-			var token = Request.Cookies["Authorization"];
+            try
+            {
+                var token = Request.Cookies["Authorization"];
 
-			if (string.IsNullOrEmpty(token))
-                return ResponseResults.ErrorOkResult("Токен не найден в куки");
+				if (string.IsNullOrEmpty(token))
+					return ResponseResults.ErrorOkResult("Токен не найден в куки");
 
-			return ResponseResults.SuccessResult(token);
-		}
+				return ResponseResults.SuccessResult(token);
+            }
+            catch (Exception ex)
+            {
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
+            }
+        }
 	}
 }

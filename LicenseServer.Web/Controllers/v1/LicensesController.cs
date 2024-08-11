@@ -24,13 +24,12 @@ namespace LicenseServer.Web.Controllers.v1
                     return ResponseResults.ErrorOkResult("Введите корректные данные");
 
                 var licenses = await _licensService.GetLicensesByOrgId(orgId);
-				return  Ok(licenses);
+				return Ok(licenses);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-				return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
-			}
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
+            }
 		}
 
 		[HttpGet("licensesOrgProg")] // 4. GET Метод получения активных лицензий по id организации по конкретной программе
@@ -46,8 +45,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 
@@ -65,8 +63,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса",logger,ex);
             }
 		}
 
@@ -84,8 +81,7 @@ namespace LicenseServer.Web.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 	}

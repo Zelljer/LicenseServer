@@ -14,7 +14,6 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-
 				var errorResult = new List<string>();
 
 				if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
@@ -28,7 +27,7 @@ namespace LicenseServer.Domain.Methods
 					.IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
 
 				if (errorResult.Any())
-                    return new HTTPResult<string> { Errors = errorResult, IsSuccsess = false };
+                    return HttpResults.StringResult.Fails(errorResult);
 
                 TarifEntity currentTarif = new TarifEntity()
 				{
@@ -42,11 +41,11 @@ namespace LicenseServer.Domain.Methods
                 context.Tarifs.Add(currentTarif);
 				await context.SaveChangesAsync();
 
-                return new HTTPResult<string> { IsSuccsess = true, Data = "Тариф создан успешно" }; 
+                return HttpResults.StringResult.Success("Тариф создан успешно"); 
 			}
 			catch
 			{
-                return new HTTPResult<string> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.StringResult.Fail("Ошибка");
             }
 		}
 
@@ -65,11 +64,11 @@ namespace LicenseServer.Domain.Methods
 
 				}).ToListAsync();
 
-                return new HTTPResult<List<TarifAPI.TarifResponse>> { IsSuccsess = true, Data = tarif };
+                return HttpResults.TarifsResult.Success(tarif);
             }
 			catch 
 			{
-                return new HTTPResult<List<TarifAPI.TarifResponse>> { Errors = new() { "Ошибка" }, IsSuccsess = false };
+                return HttpResults.TarifsResult.Fail("Ошибка");
             }
 		}
 
@@ -78,8 +77,8 @@ namespace LicenseServer.Domain.Methods
 			try
 			{
 
-                if (tarifId <= 0)
-                    return new HTTPResult<TarifAPI.TarifResponse> { Errors = new() { "Не существует тарифа с таким Id" }, IsSuccsess = false };
+                if (!Validator.isValidId(tarifId))
+                    return HttpResults.TarifResult.Fail("Не существует тарифа с таким Id");
 
                 using var context = ApplicationContext.New;
                 var tarif = await context.Tarifs.FindAsync(tarifId);
@@ -96,11 +95,11 @@ namespace LicenseServer.Domain.Methods
                     DaysCount = tarif.DaysCount
                 };
 
-                return new HTTPResult<TarifAPI.TarifResponse> { IsSuccsess = true, Data = currentTarif };
+                return HttpResults.TarifResult.Success(currentTarif);
             }
 			catch
 			{
-                return new HTTPResult<TarifAPI.TarifResponse> { Errors = new() { "Ошибка" }, IsSuccsess = false};
+                return HttpResults.TarifResult.Fail("Ошибка");
             }
 		}
 	}

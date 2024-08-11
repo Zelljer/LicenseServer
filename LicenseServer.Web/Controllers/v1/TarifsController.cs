@@ -29,8 +29,7 @@ namespace LicenseServer.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 
@@ -44,8 +43,7 @@ namespace LicenseServer.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 
@@ -62,8 +60,7 @@ namespace LicenseServer.Controllers.v1
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.Message);
-                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса");
+                return ResponseResults.ErrorBadResult("Произошла ошибка при выполнении запроса", logger, ex);
             }
 		}
 	}
