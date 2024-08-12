@@ -9,8 +9,9 @@ namespace LicenseServer.Domain.Methods
         {
             try
             {
-                if (!Validator.isValidId(organizationId))
-                    return HttpResults.OrganizationResult.Fail("Не существует организации с таким Id");
+                var idErrors = Validator.IsValidData(organizationId, "Не существует организации с таким Id");
+                if (idErrors.Any())
+                    return HttpResults.OrganizationResult.Fails(idErrors);
 
                 var currentOrganization = await DataGetter.APIOrganizationById(organizationId);
 
@@ -49,12 +50,12 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-                var errorResult = Validator.isValidOrganization(organization);
+                var errorResult = Validator.OrganizationValidation(organization);
 
 				if (errorResult.Any())
                     return HttpResults.StringResult.Fails(errorResult);
 
-                var currentOrganization = await DataGetter.OrganizationAPIToOrganizationEntity(organization);
+                var currentOrganization = DataGetter.OrganizationAPIToOrganizationEntity(organization);
 
                 await DataManager.AddEntityAsync(currentOrganization);
 

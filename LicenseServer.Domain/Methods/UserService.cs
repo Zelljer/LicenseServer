@@ -1,66 +1,22 @@
-﻿using LicenseServer.Database;
-using LicenseServer.Database.Dependencies;
-using LicenseServer.Database.Entity;
-using LicenseServer.Domain.Models;
+﻿using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
-using Microsoft.EntityFrameworkCore;
 
 namespace LicenseServer.Domain.Methods
 {
-	public class UserService(CookieManager cookieManager)
+    public class UserService(CookieManager cookieManager)
 	{
 		public async Task<HTTPResult<string>> UserRegistration(UserAPI.UserRegistrationRequest user)
 		{
 			try
 			{
-				using var context = ApplicationContext.New;
-				var errorResult = new List<string>();
-
-				var ttt = context.Users.ToList();
-                var existUser1 = context.Users.FirstOrDefault(u => u.Login == user.Login);
-
-                var existUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
-				if (existUser != null)
-					errorResult.Add("Логин занят");
-
-				errorResult
-					.AddRange(Validator
-					.IsValidData(user.Name, "Укажите имя"));
-
-				errorResult
-					.AddRange(Validator
-					.IsValidData(user.Surname, "Укажите фамилию"));
-
-				errorResult
-					.AddRange(Validator
-					.IsValidData(user.Patronymic, "Укажите отчество"));
-
-				errorResult
-					.AddRange(Validator
-					.IsValidData(user.Login, "Укажите логин"));
-
-				errorResult
-					.AddRange(Validator
-					.IsValidData(user.Password, "Укажите пароль"));
-
-				if (!Enum.IsDefined(typeof(RoleType), user.Role))
-					errorResult.Add("Не существующая роль");
+				var errorResult = await Validator.UserRegistrationValidation(user);
 
 				if (errorResult.Any())
                     return HttpResults.StringResult.Fails(errorResult);
 
-                var currentUser = new UserEntity
-				{
-					Name = user.Name,
-					Surname = user.Surname,
-					Patronymic = user.Patronymic,
-					Login = user.Login,
-					Password = Hasher.HashPassword(user.Password),
-					Role = user.Role,
-				};
+                var currentUser = DataGetter.UserAPIToUserEntity(user);
 
-				context.Users.Add(currentUser);
-				await context.SaveChangesAsync();
+                await DataManager.AddEntityAsync(currentUser);
 
                 return HttpResults.StringResult.Success("Пользователь зарегистрирован успешно"); 
 			}
@@ -73,31 +29,20 @@ namespace LicenseServer.Domain.Methods
 		public async Task<HTTPResult<string>> UserLogin(UserAPI.UserAuthentificationRequest user)
 		{
 			try
-			{
-				using var context = ApplicationContext.New;				
-				var errorResult = new List<string>();
-
-                errorResult
-					.AddRange(Validator
-					.IsValidData(user.Login, "Укажите логин"));
-
-				errorResult
-					.AddRange(Validator
-					.IsValidData(user.Password, "Укажите пароль"));
+			{			
+				var errorResult = Validator.UserAuthorizationValidation(user);
 
 				if (errorResult.Any())
                     return HttpResults.StringResult.Fails(errorResult);
 
-                var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Login == user.Login);
+                var currentUser = await DataGetter.UserEntityByLogin(user);
 
-				if (currentUser == null)
-                    return HttpResults.StringResult.Fail("Нет пользователя с таким логином");
+				errorResult = Validator.UserAuthentificationValidation(currentUser, user.Password);
 
-				if (!Hasher.VerifyPassword(currentUser.Password, user.Password))
-                    return HttpResults.StringResult.Fail("Не правильный пароль");  
+                if (errorResult.Any())
+                    return HttpResults.StringResult.Fails(errorResult);
 
-				var token = TokenManager.GenerateToken(currentUser);
-				cookieManager.SetAccessTokenCookie(token);
+                var token = TokenManager.SaveTokenToCookie(currentUser, cookieManager);
 
                 return HttpResults.StringResult.Success(token);
             }

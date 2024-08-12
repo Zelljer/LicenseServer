@@ -32,6 +32,13 @@ namespace LicenseServer.Domain.Utils
 
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
-	}
+
+        public static string SaveTokenToCookie(UserEntity user,CookieManager cookieManager)
+        {
+            var token = GenerateToken(user);
+            cookieManager.SetAccessTokenCookie(token);
+			return token;
+        }
+    }
 
 }
