@@ -9,7 +9,7 @@ namespace LicenseServer.Domain.Methods
         {
             try
             {
-                var idErrors = Validator.IsValidData(organizationId, "Не существует организации с таким Id");
+                var idErrors = Validator.DataValidation(organizationId, "Не существует организации с таким Id");
                 if (idErrors.Any())
                     return HttpResults.OrganizationResult.Fails(idErrors);
 
@@ -31,7 +31,7 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-                var errorResult = Validator.isValidPage(page, pageSize);
+                var errorResult = Validator.PageValidation(page, pageSize);
 
 				if (errorResult.Any())
 					return HttpResults.OrganizationsPagedResult.Fails(errorResult);

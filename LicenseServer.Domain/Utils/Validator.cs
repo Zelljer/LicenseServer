@@ -11,7 +11,7 @@ namespace LicenseServer.Domain.Utils
 {
     public class Validator
 	{
-		public static List<string> IsValidData<T>(T data, string errorText)
+		public static List<string> DataValidation<T>(T data, string errorText)
 		{
 			List<string> errors = [];
 
@@ -44,7 +44,7 @@ namespace LicenseServer.Domain.Utils
         {
             var errors = new List<string>();
 
-            errors.AddRange(IsValidData(organization.Name, "Не корректное название"));
+            errors.AddRange(DataValidation(organization.Name, "Не корректное название"));
 
             if (!Validations.IsValidInn(organization.Inn))
                 errors.Add("Не корректный ИНН");
@@ -52,9 +52,9 @@ namespace LicenseServer.Domain.Utils
             if (organization.Inn.Length != 12 && !Validations.IsValidKpp(organization.Kpp))
                 errors.Add("Не корректный КПП");
 
-            errors.AddRange(IsValidEmail(organization.Email));
+            errors.AddRange(EmailValidation(organization.Email));
 
-            errors.AddRange(IsValidPhone(organization.Phone));
+            errors.AddRange(PhoneValidation(organization.Phone));
 
             return errors;
         }
@@ -70,7 +70,7 @@ namespace LicenseServer.Domain.Utils
                 errors.Add("Не корректная цена");
 
             errors
-                .AddRange(IsValidData(tarif.DaysCount, "Укажите количество дней действия лицензии"));
+                .AddRange(DataValidation(tarif.DaysCount, "Укажите количество дней действия лицензии"));
 
             return errors;
         }
@@ -80,10 +80,10 @@ namespace LicenseServer.Domain.Utils
             var errors = new List<string>();
 
             errors
-                .AddRange(IsValidData(license.OrganizationId, "Не корректный Id организации"));
+                .AddRange(DataValidation(license.OrganizationId, "Не корректный Id организации"));
 
             errors
-                .AddRange(IsValidData(license.TarifId, "Не корректный Id тарифа"));
+                .AddRange(DataValidation(license.TarifId, "Не корректный Id тарифа"));
 
             var orgErrors = OrgIdValidation(license.OrganizationId);
             var tarifErrors = TarifIdValidation(license.TarifId);
@@ -95,7 +95,7 @@ namespace LicenseServer.Domain.Utils
                 errors.AddRange(tarifErrors);
 
             errors
-                .AddRange(IsValidDate(license.DateStart));
+                .AddRange(DateValidation(license.DateStart));
 
             return errors;
         }
@@ -112,19 +112,19 @@ namespace LicenseServer.Domain.Utils
                 errors.Add("Логин занят");
 
             errors
-                .AddRange(IsValidData(user.Name, "Укажите имя"));
+                .AddRange(DataValidation(user.Name, "Укажите имя"));
 
             errors
-                .AddRange(IsValidData(user.Surname, "Укажите фамилию"));
+                .AddRange(DataValidation(user.Surname, "Укажите фамилию"));
 
             errors
-                .AddRange(IsValidData(user.Patronymic, "Укажите отчество"));
+                .AddRange(DataValidation(user.Patronymic, "Укажите отчество"));
 
             errors
-                .AddRange(IsValidData(user.Login, "Укажите логин"));
+                .AddRange(DataValidation(user.Login, "Укажите логин"));
 
             errors
-                .AddRange(IsValidData(user.Password, "Укажите пароль"));
+                .AddRange(DataValidation(user.Password, "Укажите пароль"));
 
             if (!Enum.IsDefined(typeof(RoleType), user.Role))
                 errors.Add("Не существующая роль");
@@ -137,10 +137,10 @@ namespace LicenseServer.Domain.Utils
             var errors = new List<string>();
 
             errors
-                .AddRange(IsValidData(user.Login, "Укажите логин"));
+                .AddRange(DataValidation(user.Login, "Укажите логин"));
 
             errors
-                .AddRange(IsValidData(user.Password, "Укажите пароль"));
+                .AddRange(DataValidation(user.Password, "Укажите пароль"));
 
             return errors;
         }
@@ -173,7 +173,7 @@ namespace LicenseServer.Domain.Utils
             using var context = ApplicationContext.New;
             var errors = new List<string>();
 
-            errors.AddRange(IsValidData(organizationId, "Не корректный Id организации"));
+            errors.AddRange(DataValidation(organizationId, "Не корректный Id организации"));
 
             if (context.Organizations.Find(organizationId) == null)
                 errors.Add("Нет организации с таким Id");
@@ -186,7 +186,7 @@ namespace LicenseServer.Domain.Utils
             using var context = ApplicationContext.New;
             var errors = new List<string>();
 
-            errors.AddRange(IsValidData(tarifId, "Не корректный Id тарифа"));
+            errors.AddRange(DataValidation(tarifId, "Не корректный Id тарифа"));
 
             if (context.Tarifs.Find(tarifId) == null)
                 errors.Add("Нет тарифа с таким Id");
@@ -199,7 +199,7 @@ namespace LicenseServer.Domain.Utils
             using var context = ApplicationContext.New;
             var errorResult = new List<string>();
 
-            errorResult.AddRange(IsValidData(programId, "Не корректный Id программы"));
+            errorResult.AddRange(DataValidation(programId, "Не корректный Id программы"));
 
             if (!Enum.IsDefined(typeof(ProgramType), programId))
                 errorResult.Add("Указана не существующая программа");
@@ -208,22 +208,22 @@ namespace LicenseServer.Domain.Utils
         }
 
 
-        public static List<string> isValidPage(int currentPage, int pageSize)
+        public static List<string> PageValidation(int currentPage, int pageSize)
         {
             var errors = new List<string>();
 
             errors
-                .AddRange(IsValidData(currentPage, "Укажите нужный номер страницы. Отсчет страниц начинается с 1")
+                .AddRange(DataValidation(currentPage, "Укажите нужный номер страницы. Отсчет страниц начинается с 1")
                 );
 
             errors
-                .AddRange(IsValidData(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)")
+                .AddRange(DataValidation(pageSize, "Укажите, сколько элементов будет отображаться на странице (размер страницы)")
                 );
 
             return errors;
         }
 
-        public static List<string> IsValidEmail(string email)
+        public static List<string> EmailValidation(string email)
 		{
 			if (email.Length == 0)
                 return new() { "Укажите эл. почту" };
@@ -236,7 +236,7 @@ namespace LicenseServer.Domain.Utils
 			return errors;
 		}
 
-		public static List<string> IsValidPhone(string phone)
+		public static List<string> PhoneValidation(string phone)
 		{
 			if (phone.Length == 0)
                 return new() { "Укажите номер телефона" };
@@ -259,7 +259,7 @@ namespace LicenseServer.Domain.Utils
 			return errors;
 		}
 
-        public static List<string> IsValidDate(string date)
+        public static List<string> DateValidation(string date)
         {
 			if (!DateTime.TryParseExact(date, Constans.TimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime daeteTime))
 				return new() { $"Введите корректную дату создания лицензии в формате {Constans.TimeFormat}" };

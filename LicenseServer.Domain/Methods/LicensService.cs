@@ -1,9 +1,7 @@
 ﻿using LicenseServer.Database;
 using LicenseServer.Database.Dependencies;
-using LicenseServer.Database.Entity;
 using LicenseServer.Domain.Models;
 using LicenseServer.Domain.Utils;
-using System.ComponentModel;
 
 namespace LicenseServer.Domain.Methods
 {
@@ -72,7 +70,7 @@ namespace LicenseServer.Domain.Methods
 		{
 			try
 			{
-				var idErrors = Validator.IsValidData(licenseId, "Не корректный Id лицензии");
+				var idErrors = Validator.DataValidation(licenseId, "Не корректный Id лицензии");
 
                 if (idErrors.Any())
                     return HttpResults.StringResult.Fails(idErrors);

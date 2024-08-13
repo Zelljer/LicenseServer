@@ -181,9 +181,9 @@ namespace LicenseServer.Domain.Utils
                 .Take(pageSize)
                 .ToList();
 
-            if (!organizations.Any())
+            if (!pagedOrganizations.Any())
                 return new();
-            return organizations;
+            return pagedOrganizations;
         }
 
         public static async Task<IEnumerable<OrganizationsLiceses>> OrganizationsLiceses(int currentPage, int pageSize)
@@ -191,7 +191,7 @@ namespace LicenseServer.Domain.Utils
             var organizations = await OrganizationEntitiesByPageSettings(currentPage, pageSize);
 
             if (!Validator.isValidObject(organizations))
-                return null;
+                return Enumerable.Empty<OrganizationsLiceses>();
 
             var licenses = await LicenseEntities();
 

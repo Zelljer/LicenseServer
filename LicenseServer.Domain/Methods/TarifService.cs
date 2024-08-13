@@ -45,7 +45,7 @@ namespace LicenseServer.Domain.Methods
 		 {
 			try
 			{
-				var idErrors = Validator.IsValidData(tarifId, "Не корректный Id тарифа");
+				var idErrors = Validator.DataValidation(tarifId, "Не корректный Id тарифа");
                 if (idErrors.Any())
                     return HttpResults.TarifResult.Fails(idErrors);
 

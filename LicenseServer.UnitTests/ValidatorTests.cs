@@ -11,7 +11,7 @@ namespace LicenseServer.UnitTests
 			string input = "";
 			string errorText = "Пустое значение";
 
-			var result = Validator.IsValidData(input, errorText);
+			var result = Validator.DataValidation(input, errorText);
 
 			Assert.IsTrue(result.Contains(errorText));
 		}
@@ -22,7 +22,7 @@ namespace LicenseServer.UnitTests
 			string input = null;
 			string errorText = "Не введены данные";
 
-			var result = Validator.IsValidData(input, errorText);
+			var result = Validator.DataValidation(input, errorText);
 
 			Assert.IsTrue(result.Contains(errorText));
 		}
@@ -33,7 +33,7 @@ namespace LicenseServer.UnitTests
 			int input = -1;
 			string errorText = "Отрицательное число";
 
-			var result = Validator.IsValidData(input, errorText);
+			var result = Validator.DataValidation(input, errorText);
 
 			Assert.IsTrue(result.Contains(errorText));
 		}
@@ -44,7 +44,7 @@ namespace LicenseServer.UnitTests
 			string email = "";
 			var expectedErrors = "Укажите эл. почту";
 
-			var result = Validator.IsValidEmail(email);
+			var result = Validator.EmailValidation(email);
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
@@ -55,7 +55,7 @@ namespace LicenseServer.UnitTests
 			string email = "invalid-email";
 			var expectedErrors = "Введена не корректная почта";
 
-			var result = Validator.IsValidEmail(email);
+			var result = Validator.EmailValidation(email);
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
@@ -66,7 +66,7 @@ namespace LicenseServer.UnitTests
 			string phone = "";
 			var expectedErrors = "Укажите номер телефона";
 
-			var result = Validator.IsValidPhone(phone);
+			var result = Validator.PhoneValidation(phone);
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
@@ -77,7 +77,7 @@ namespace LicenseServer.UnitTests
 			string phone = "64531232345";
 			var expectedErrors = "Номер должен начинаться на +7, 7 или 8";
 
-			var result = Validator.IsValidPhone(phone);
+			var result = Validator.PhoneValidation(phone);
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
@@ -88,7 +88,7 @@ namespace LicenseServer.UnitTests
 			string phone = "8234a235453";
 			var expectedErrors = "В номере телефона не должны присутствовать буквы и другие символы";
 
-			var result = Validator.IsValidPhone(phone);
+			var result = Validator.PhoneValidation(phone);
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
@@ -99,7 +99,7 @@ namespace LicenseServer.UnitTests
 			string phone = "893465478342";
 			var expectedErrors = "Номер телефона должен содержать 11 цифр";
 
-			var result = Validator.IsValidPhone(phone);
+			var result = Validator.PhoneValidation(phone);
 
 			Assert.IsTrue(result.Contains(expectedErrors));
 		}
@@ -111,8 +111,8 @@ namespace LicenseServer.UnitTests
             string date2 = "23/09/2024";
             var expectedErrors = "Введите корректную дату создания лицензии в формате dd.mm.yyyy";
 
-            var result1 = Validator.IsValidDate(date1);
-            var result2 = Validator.IsValidDate(date2);
+            var result1 = Validator.DateValidation(date1);
+            var result2 = Validator.DateValidation(date2);
 
             Assert.IsTrue(result1.Contains(expectedErrors));
             Assert.IsTrue(result2.Contains(expectedErrors));
@@ -124,7 +124,7 @@ namespace LicenseServer.UnitTests
             string date = "01.01.2000";
             var expectedErrors = "Дата не может быть раньше текущего дня";
 
-            var result = Validator.IsValidDate(date);
+            var result = Validator.DateValidation(date);
 
             Assert.IsTrue(result.Contains(expectedErrors));
         }
