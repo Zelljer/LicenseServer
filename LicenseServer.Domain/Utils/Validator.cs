@@ -63,7 +63,9 @@ namespace LicenseServer.Domain.Utils
         {
             var errors = new List<string>();
 
-            if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
+			errors.AddRange(DataValidation(tarif.Name, "Не корректное название"));
+
+			if (!Enum.IsDefined(typeof(ProgramType), tarif.Program))
                 errors.Add("Не существующая прогрмма");
 
             if (tarif.Price < 0)
@@ -99,7 +101,6 @@ namespace LicenseServer.Domain.Utils
 
             return errors;
         }
-
 
         public static async Task<List<string>> UserRegistrationValidation(UserAPI.UserRegistrationRequest user)
         {
